@@ -221,14 +221,14 @@
 {:else if showBody}
   <div class="flex justify-start sm:gap-3.5">
     <div class="mt-1 hidden h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 sm:flex">
-      <img src="/sarue-avatar.png" alt="Assistente" width="36" height="36" class="h-9 w-9 object-contain" />
+      <img src="/content.png" alt="Assistente" width="36" height="36" class="h-9 w-9 object-contain" />
     </div>
 
     <div class="flex w-full min-w-0 max-w-none flex-col gap-2.5 sm:max-w-[min(58rem,92vw)]">
       <div class="rounded-[1.05rem] rounded-bl-sm border border-slate-200/90 bg-white px-4 py-4 text-[0.9rem] leading-[1.56] text-[#142854] shadow-[0_10px_24px_rgba(15,23,42,0.08)] sm:rounded-[1.35rem] sm:rounded-bl-md sm:px-6 sm:py-5 sm:text-base sm:leading-8">
         <div class="mb-3 flex items-center gap-2 border-b border-slate-100 pb-2 sm:hidden">
           <span class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-50 ring-1 ring-slate-200">
-            <img src="/sarue-avatar.png" alt="" width="28" height="28" class="h-7 w-7 object-contain" />
+            <img src="/content.png" alt="" width="28" height="28" class="h-7 w-7 object-contain" />
           </span>
           <span class="text-xs font-extrabold text-[#1a2e5a]">Saruê</span>
         </div>
