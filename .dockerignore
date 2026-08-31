@@ -1,0 +1,12 @@
+.git
+.idea
+docs
+selfhost
+**/node_modules
+**/.svelte-kit
+**/build
+**/.vercel
+**/.env
+**/.env.*
+!**/.env.example
+**/.firecrawl

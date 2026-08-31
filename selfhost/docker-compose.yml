@@ -1,0 +1,50 @@
+# fIAq — app em container, plugado no stack Supabase self-hosted oficial.
+# Pré-requisito: o stack supabase/docker rodando na mesma máquina (ver README.md).
+#
+#   docker compose --env-file .env up -d --build
+services:
+  fiaq-app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      # adapter-node: origem pública do app (CSRF/URLs absolutas)
+      ORIGIN: ${APP_URL}
+      APP_URL: ${APP_URL}
+      ADMIN_BASE_URL: ${APP_URL}
+      ADMIN_BOOTSTRAP_EMAILS: ${ADMIN_BOOTSTRAP_EMAILS}
+
+      # Banco: direto no Postgres do stack Supabase (rede interna)
+      DATABASE_URL: ${DATABASE_URL}
+
+      # Supabase (server-side pode usar a URL interna do Kong)
+      SUPABASE_URL: ${SUPABASE_INTERNAL_URL:-${VITE_SUPABASE_URL}}
+      SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+
+      # LLM / embeddings
+      CHAT_PROVIDER: ${CHAT_PROVIDER:-openrouter}
+      EMBED_PROVIDER: ${EMBED_PROVIDER:-openrouter}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENROUTER_CHAT_MODEL: ${OPENROUTER_CHAT_MODEL}
+      OPENROUTER_CHAT_FALLBACK_MODELS: ${OPENROUTER_CHAT_FALLBACK_MODELS}
+      OPENROUTER_EMBED_MODEL: ${OPENROUTER_EMBED_MODEL}
+
+      # Pesquisa web (opcional)
+      FIRECRAWL_API_URL: ${FIRECRAWL_API_URL:-}
+      FIRECRAWL_API_KEY: ${FIRECRAWL_API_KEY:-}
+      FIRECRAWL_INCLUDE_DOMAINS: ${FIRECRAWL_INCLUDE_DOMAINS:-}
+    networks:
+      - supabase
+
+networks:
+  supabase:
+    # rede criada pelo docker-compose do supabase/docker (confira com `docker network ls`)
+    name: supabase_default
+    external: true
