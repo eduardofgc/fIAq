@@ -235,10 +235,15 @@
         {#if message.streaming && message.activity?.length}
           <ResearchActivity activities={message.activity} compact />
         {/if}
+        {#if message.streaming && !hasRenderableContent}
+          <span class="fiaq-thinking-dots" role="status" aria-label="Saruê está pensando">
+            <span></span><span></span><span></span>
+          </span>
+        {/if}
         {#if hasRenderableContent}
           <div class="fiaq-prose">{@html renderedContent}</div>
         {/if}
-        {#if message.streaming}
+        {#if message.streaming && hasRenderableContent}
           <span class="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-[#1a2e5a] align-middle"></span>
         {/if}
       </div>
@@ -396,6 +401,31 @@
 {/if}
 
 <style>
+  .fiaq-thinking-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    padding: 0.35rem 0.1rem;
+  }
+  .fiaq-thinking-dots span {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 9999px;
+    background: #1a2e5a;
+    opacity: 0.35;
+    animation: fiaq-thinking-bounce 1.1s ease-in-out infinite;
+  }
+  .fiaq-thinking-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .fiaq-thinking-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes fiaq-thinking-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+    30% { transform: translateY(-0.22rem); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fiaq-thinking-dots span { animation: none; opacity: 0.6; }
+  }
+
   .fiaq-prose {
     overflow-wrap: break-word;
     hyphens: none;

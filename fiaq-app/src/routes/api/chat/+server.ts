@@ -39,6 +39,7 @@ const LOCAL_CONTEXT_MIN_SCORE = 0.52
 const CONTEXTUAL_SEARCH_MAX_CHARS = 700
 const MAX_HISTORY_MESSAGES = 12
 const MAX_CLIENT_MESSAGE_CHARS = 2_000
+const NO_RELIABLE_CONTEXT_MESSAGE = 'Nenhuma informação relevante e confiável foi encontrada na base de dados nem na web para esta pergunta específica.'
 
 const SYSTEM_PROMPT = `Você é o assistente virtual do fIAq, portal acadêmico do CIC/UnB.
 
@@ -46,6 +47,7 @@ Regras:
 * Responda sempre em português brasileiro, de forma direta, clara e acolhedora.
 * Use o <contexto> como fonte principal. Combine trechos relacionados antes de responder.
 * Não invente URLs, e-mails, prazos, documentos, regras ou procedimentos.
+* Não invente nomes de setores, comissões, conselhos ou siglas de órgãos da UnB que não estejam explicitamente no <contexto>. Se precisar indicar a quem procurar e o órgão certo não estiver claro no contexto, diga algo genérico como "a secretaria ou coordenação do seu curso", sem inventar um nome específico.
 * Quando o contexto vier de sindicato ou veículo jornalístico, trate como indício/contexto externo e recomende confirmar decisões acadêmicas em canais institucionais da UnB.
 * Não escreva URLs no corpo; os links clicáveis aparecem abaixo da resposta.
 * Não crie seções "Links úteis", "Fontes", "Referências" ou listas de links no corpo da resposta.
@@ -137,6 +139,7 @@ const GENERIC_CONTEXT_TERMS = new Set([
   'aluno',
   'atendimento',
   'documento',
+  'edital',
   'funciona',
   'horario',
   'informacao',
@@ -436,25 +439,40 @@ export const POST: RequestHandler = async (event) => {
     let searchVector: number[] | null = null
     const contextSources: string[] = []
 
-    try {
-      searchVector = await embedQuery(searchQuestion)
-      const ragSearch = await buscarRag(searchVector, embedInfo.model, RAG_CANDIDATE_LIMIT)
-      vectorResults = ragSearch.results
-      contextSources.push(ragSearch.source === 'database' ? 'banco vetorial' : 'índice local vetorial')
-    } catch (error) {
-      console.warn('[chat.post] Busca vetorial falhou antes do fallback textual:', error)
-    }
+    // Busca vetorial e textual são independentes — rodam em paralelo pra não
+    // somar duas idas de rede/banco em série no caminho crítico da resposta.
+    const [vectorOutcome, textOutcome] = await Promise.all([
+      (async () => {
+        try {
+          const vector = await embedQuery(searchQuestion)
+          searchVector = vector
+          const ragSearch = await buscarRag(vector, embedInfo.model, RAG_CANDIDATE_LIMIT)
+          return { results: ragSearch.results, source: ragSearch.source === 'database' ? 'banco vetorial' : 'índice local vetorial' }
+        } catch (error) {
+          console.warn('[chat.post] Busca vetorial falhou antes do fallback textual:', error)
+          return null
+        }
+      })(),
+      (async () => {
+        try {
+          const dbResults = await buscarRagPorTextoNoBanco(searchQuestion, RAG_CANDIDATE_LIMIT)
+          if (dbResults?.length) return { results: dbResults, source: 'banco textual' }
+        } catch (error) {
+          console.warn('[chat.post] Busca textual no banco falhou antes do fallback local:', error)
+        }
 
-    try {
-      textResults = await buscarRagPorTextoNoBanco(searchQuestion, RAG_CANDIDATE_LIMIT)
-      if (textResults?.length) contextSources.push('banco textual')
-    } catch (error) {
-      console.warn('[chat.post] Busca textual no banco falhou antes do fallback local:', error)
-    }
+        const localResults = buscarRagPorTexto(searchQuestion, RAG_CANDIDATE_LIMIT)
+        return localResults.length ? { results: localResults, source: 'índice local textual' } : null
+      })()
+    ])
 
-    if (!textResults?.length) {
-      textResults = buscarRagPorTexto(searchQuestion, RAG_CANDIDATE_LIMIT)
-      if (textResults.length) contextSources.push('índice local textual')
+    if (vectorOutcome) {
+      vectorResults = vectorOutcome.results
+      contextSources.push(vectorOutcome.source)
+    }
+    if (textOutcome) {
+      textResults = textOutcome.results
+      contextSources.push(textOutcome.source)
     }
 
     const rawResults = mergeSearchResults([vectorResults, textResults])
@@ -551,6 +569,15 @@ export const POST: RequestHandler = async (event) => {
             reason: 'fallback_automatico'
           })
         } else {
+          // Contexto local já era fraco (por isso caímos aqui) e a web não achou
+          // nada pra complementar — não entrega o melhor resultado local como se
+          // fosse confiável, senão o modelo detalha um documento de outro assunto
+          // com confiança (ex.: responder sobre dupla graduação citando um edital
+          // de bolsa PIBIC só porque ambos têm "edital" no texto).
+          if (!localContextEnough) {
+            context = NO_RELIABLE_CONTEXT_MESSAGE
+            answerSources = []
+          }
           await sendActivity(sse, {
             id: 'web-search',
             kind: 'web',
@@ -562,6 +589,10 @@ export const POST: RequestHandler = async (event) => {
         }
       } catch (error) {
         console.warn('[chat.post] Falha na pesquisa Firecrawl; usando contexto local disponível:', error)
+        if (!localContextEnough) {
+          context = NO_RELIABLE_CONTEXT_MESSAGE
+          answerSources = []
+        }
         await sendActivity(sse, {
           id: 'web-search',
           kind: 'web',

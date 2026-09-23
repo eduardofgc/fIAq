@@ -17,11 +17,14 @@ const KIND_BOOST: Record<ChunkKind, number> = {
 }
 
 const store: EmbeddedChunk[] = []
+// "edital" fica de fora de propósito: é genérico demais (PIBIC, monitoria,
+// dupla graduação... todos têm "edital") e vira falso positivo em buscas por
+// "último edital de X", fazendo o documento errado vencer só por essa palavra.
 const LEXICAL_STOPWORDS = new Set([
   'a', 'ao', 'aos', 'as', 'como', 'com', 'da', 'das', 'de', 'do', 'dos', 'e',
-  'em', 'eu', 'fazer', 'isso', 'me', 'na', 'no', 'o', 'os', 'ou', 'para',
-  'por', 'posso', 'quais', 'qual', 'quando', 'que', 'quero', 'sao', 'se',
-  'sobre', 'um', 'uma', 'unb'
+  'edital', 'em', 'eu', 'fazer', 'isso', 'me', 'na', 'no', 'o', 'os', 'ou',
+  'para', 'por', 'posso', 'quais', 'qual', 'quando', 'que', 'quero', 'sao',
+  'se', 'sobre', 'um', 'uma', 'unb'
 ])
 
 function normalizeText(text: string): string {

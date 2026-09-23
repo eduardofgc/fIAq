@@ -445,7 +445,10 @@ export async function searchFirecrawl(question: string, options: SearchFirecrawl
     rankedSources = mergeAndRankSources(trimmed, [...sourceGroups, ...focusedSourceGroups])
   }
 
-  if (rankedSources.length || !fresh) return rankedSources
+  // Mesmo fora do modo "fresh", uma busca restrita aos domínios oficiais que não
+  // acha nada não deve desistir — cai pra busca ampla (ainda filtrada por
+  // domínio confiável) abaixo em vez de devolver contexto vazio.
+  if (rankedSources.length) return rankedSources
 
   const fallbackQuery = broadQueries[0] ?? queries[0] ?? trimmed
   const fallbackScrapeSources = await runFirecrawlSearch(fallbackQuery, {
