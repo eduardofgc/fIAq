@@ -31,7 +31,7 @@ const OPENROUTER_CHAT_ATTEMPTS = readPositiveInt(
   process.env.OPENROUTER_CHAT_ATTEMPTS,
   OPENROUTER_CHAT_MODEL === OPENROUTER_ROUTER_CHAT_MODEL ? 2 : 1
 )
-const OPENROUTER_CHAT_MAX_TOKENS = readPositiveInt(process.env.OPENROUTER_CHAT_MAX_TOKENS, 650)
+const OPENROUTER_CHAT_MAX_TOKENS = readPositiveInt(process.env.OPENROUTER_CHAT_MAX_TOKENS, 1200)
 const OPENROUTER_CHAT_TEMPERATURE = readTemperature(process.env.OPENROUTER_CHAT_TEMPERATURE, 0.2)
 // Keep this longer than known safety-classifier strings so invalid OpenRouter
 // responses can be discarded before any token is shown to users.
@@ -371,7 +371,11 @@ function openRouterChatBody(model: string, messages: ChatMessage[], stream: bool
     messages,
     stream,
     max_tokens: OPENROUTER_CHAT_MAX_TOKENS,
-    temperature: OPENROUTER_CHAT_TEMPERATURE
+    temperature: OPENROUTER_CHAT_TEMPERATURE,
+    // Os fallbacks nemotron são modelos de raciocínio: "exclude" ainda gasta o
+    // orçamento de max_tokens pensando e devolve conteúdo vazio. "enabled: false"
+    // desliga o raciocínio de vez, sem consumir tokens da resposta.
+    reasoning: { enabled: false }
   }
 }
 
