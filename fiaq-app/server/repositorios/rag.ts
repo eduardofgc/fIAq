@@ -1,5 +1,6 @@
 import { getSql, isDatabaseConfigured } from '../db/index'
 import { keywordTopK, topKFiltered } from '../utils/vectorStore'
+import type { NivelConfianca } from '../utils/embeddings'
 
 const VECTOR_DIM = 2048
 
@@ -8,6 +9,7 @@ export interface SearchResult {
   titulo: string
   conteudo: string
   url: string
+  nivelConfianca: NivelConfianca
   score: number
 }
 
@@ -16,6 +18,7 @@ interface RagSearchRow {
   titulo: string
   conteudo: string
   url: string | null
+  nivel_confianca: NivelConfianca
   score: number
 }
 
@@ -25,12 +28,20 @@ interface RagTextRow {
   conteudo: string
   url: string | null
   origem: 'faq' | 'pdf' | 'crawl'
+  nivel_confianca: NivelConfianca
 }
 
 const KIND_BOOST: Record<RagTextRow['origem'], number> = {
   faq: 0.06,
   pdf: 0.02,
   crawl: 0
+}
+
+// Domina o boost de tipo: um crawl oficial (SAA/DEG/sistema oficial) deve
+// ficar acima de qualquer coisa institucional mesmo com score bruto parecido.
+const CONFIANCA_BOOST: Record<NivelConfianca, number> = {
+  oficial: 0.12,
+  institucional: 0
 }
 
 // "edital" fica de fora de propósito: é genérico demais (PIBIC, monitoria,
@@ -98,7 +109,7 @@ export async function buscarRagNoBanco(
 
   const sql = getSql()
   const rows = await sql<RagSearchRow[]>`
-    SELECT id, titulo, conteudo, url, score
+    SELECT id, titulo, conteudo, url, nivel_confianca, score
     FROM buscar_rag_chunks(
       ${vectorLiteral}::extensions.vector(2048),
       ${modeloEmbedding},
@@ -112,6 +123,7 @@ export async function buscarRagNoBanco(
     titulo: row.titulo,
     conteudo: row.conteudo,
     url: row.url ?? '',
+    nivelConfianca: row.nivel_confianca,
     score: Number(row.score)
   }))
 }
@@ -154,7 +166,7 @@ function rankTextRows(query: string, rows: RagTextRow[], k: number): SearchResul
       const titleTerms = new Set(lexicalTerms(row.titulo))
       const contentTerms = new Set(lexicalTerms(row.conteudo).slice(0, 180))
       let matched = 0
-      let score = KIND_BOOST[row.origem] ?? 0
+      let score = (KIND_BOOST[row.origem] ?? 0) + (CONFIANCA_BOOST[row.nivel_confianca] ?? 0)
 
       for (const term of queryTerms) {
         let termMatched = false
@@ -183,6 +195,7 @@ function rankTextRows(query: string, rows: RagTextRow[], k: number): SearchResul
         titulo: row.titulo,
         conteudo: row.conteudo,
         url: row.url ?? '',
+        nivelConfianca: row.nivel_confianca,
         score
       }
     })
@@ -202,7 +215,8 @@ export async function buscarRagPorTextoNoBanco(query: string, k = 5): Promise<Se
         rc.titulo,
         rc.conteudo,
         COALESCE(rc.url_fonte, rd.url_fonte, '') AS url,
-        rc.origem
+        rc.origem,
+        rc.nivel_confianca
       FROM rag_chunk rc
       JOIN rag_documento rd ON rd.id = rc.id_documento
       WHERE rc.ativo = TRUE

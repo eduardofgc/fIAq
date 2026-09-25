@@ -286,6 +286,12 @@ function hasEnoughLocalContext(question: string, results: SearchResult[]): boole
   const top = results[0]
   if (!top) return false
 
+  // Conteúdo só "institucional" (grupo estudantil, empresa júnior, site de
+  // captação...) nunca conta como suficiente sozinho — sempre libera o
+  // fallback web, mesmo com score/cobertura altos, porque não é fonte
+  // normativa pra regra/prazo/procedimento.
+  if (top.nivelConfianca !== 'oficial') return false
+
   const distinctiveTerms = terms(question).filter(term => !GENERIC_CONTEXT_TERMS.has(term))
   const queryTerms = new Set(distinctiveTerms.length ? distinctiveTerms : terms(question))
   if (!queryTerms.size) return true
@@ -352,6 +358,12 @@ function rankContextResults(question: string, results: SearchResult[]): SearchRe
         + contentOverlap * 0.025
         + (exactShortTitle ? 0.18 : 0)
         + (exactQuestionTitle ? 0.3 : 0)
+        // Termo explícito de confiança: sem isso, o clip em Math.min(score, 1)
+        // engole o boost de nivelConfianca já embutido no score bruto sempre
+        // que um resultado institucional já vem com score alto por keyword
+        // match puro (ex.: página de grupo estudantil "vencendo" por bater
+        // palavra, mesmo sendo assunto diferente da pergunta).
+        + (result.nivelConfianca === 'oficial' ? 0.25 : 0)
         - Math.min(missingTitleTerms, 4) * 0.035
         - index * 0.001
 

@@ -1,0 +1,19 @@
+---
+title: Diploma, Status FORMANDO e Outorga Antecipada – saa
+url: https://saa.unb.br/perguntas-frequentes/
+contexto: secretaria-academica
+source: manual-research
+discovered_at: 2026-09-25T00:00:00.000Z
+---
+Status FORMANDO, Diploma e Outorga Antecipada na UnB
+Status FORMANDO: significa que, pelo histórico escolar, o(a) estudante poderá se formar ao final do semestre vigente — o status muda automaticamente para FORMANDO assim que o(a) estudante estiver matriculado(a) em todos os componentes curriculares pendentes. Se os cálculos indicarem que deveria estar como FORMANDO mas o status não mudou, provavelmente ainda há pendências além das disciplinas em curso (ex.: atividades complementares obrigatórias, cadeias de seletividade não cumpridas) — vale checar com a coordenação do curso ou a SAA. Não estar com status FORMANDO não impede a formatura naquele semestre; é só uma indicação visual do SIGAA.
+
+Outorga Antecipada de Grau: estudante regular de graduação com status FORMANDO no semestre vigente, ou considerado(a) formando no semestre seguinte, pode solicitar excepcionalmente a abreviação da duração do curso ao Colegiado do Curso, que se pronuncia sobre o pedido em até 30 dias. O pedido é feito diretamente na coordenação do curso.
+
+Diploma: pela Portaria MEC nº 1.095/2018, a instituição tem até 60 dias após a colação de grau para expedir o diploma, e até mais 60 dias para registrá-lo. Na prática, a UnB costuma liberar o diploma bem antes: em média cerca de 20 dias úteis após o setor de Registro de Diplomas da SAA receber a Ata de Colação de Grau via SEI. Os diplomas da UnB são emitidos apenas em formato digital (não há mais diploma físico impresso em papel moeda) e apenas em língua portuguesa — a UnB não emite diploma em inglês. Diplomas digitais dispensam assinatura do(a) formado(a). O diploma fica disponível no site oficial da UnB, na seção "diploma digital" (servicos.unb.br/publico, busca por CPF para brasileiros ou passaporte para estrangeiros); diploma emitido no exterior pode ser solicitado/validado em rrde.unb.br. O arquivo em PDF baixado do site é só a representação visual — o documento original válido é o arquivo em XML que acompanha o PDF. Para pedir a segunda via ou converter um diploma físico antigo em digital, envie e-mail para rdgsaa@unb.br com cópia do documento de identificação com foto, CPF, local de nascimento e, se possível, cópia do diploma antigo.
+
+Documentos para registro de diploma: RG, certificado de conclusão do ensino médio e histórico escolar do ensino médio, todos frente e verso e legíveis, enviados pelo SIGAA (Portal do Discente → Ensino → Solicitar validação de documentos para registro de diplomas) a qualquer momento durante o curso, mesmo antes de virar FORMANDO. Só é obrigatório enviar o TCC para a Biblioteca Digital de Monografias (BDM/UnB) se o curso exigir isso como parte da disciplina de conclusão.
+
+Colação de Grau é obrigatória para receber o diploma (art. 25, §2º da Portaria MEC nº 1.095/2018) — não participar da colação, mesmo com o curso concluído, impede o recebimento do diploma.
+
+Registro de Formada(o) em Curso Secundário: usado quando o(a) estudante já concluiu todo o currículo de um curso (geralmente uma habilitação diferente do mesmo curso, ex.: Bacharelado e Licenciatura) enquanto estava registrado(a) formalmente em outro curso/habilitação. É diferente de Dupla Diplomação: aqui não existe edital, o(a) estudante já cumpriu todos os requisitos e só precisa preencher formulário via peticionamento eletrônico (SEI/UnB, usuário externo) para a SAA (Coordenação de Graduação/SAA-CGR) analisar e efetivar o registro; na Dupla Diplomação, ao contrário, é preciso participar do processo seletivo do edital semestral antes de começar o segundo curso. No Registro de Formada(o) em Curso Secundário não há cálculo de IRA/MP para o curso secundário — esses valores ficam zerados no histórico daquele curso.
