@@ -5,6 +5,7 @@ import { readFile, readdir, writeFile } from 'node:fs/promises'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { extractText } from 'unpdf'
+import { trustLevelForChunk } from '../server/utils/trustLevel.mjs'
 
 function loadEnv() {
   try {
@@ -220,7 +221,7 @@ async function main() {
     ...(await indexFaq()),
     ...(await indexPdfs()),
     ...(await indexCrawl())
-  ]
+  ].map(chunk => ({ ...chunk, nivelConfianca: trustLevelForChunk(chunk.kind, chunk.url) }))
 
   const chunks = []
   for (let i = 0; i < rawChunks.length; i++) {

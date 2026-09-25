@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import postgres from 'postgres'
 import { extractText } from 'unpdf'
+import { trustLevelForChunk } from '../server/utils/trustLevel.mjs'
 
 const VECTOR_DIM = 2048
 const FAQ_ORDER = [
@@ -218,6 +219,7 @@ async function buildKnowledgeSources() {
       const content = `${entry.titulo}\n${entry.conteudo}`
       documents.push({
         origem: 'faq',
+        nivel_confianca: trustLevelForChunk('faq', entry.url ?? ''),
         slug: `faq-${entry.id}`,
         titulo: entry.titulo,
         url_fonte: entry.url ?? '',
@@ -264,6 +266,7 @@ async function buildKnowledgeSources() {
 
     documents.push({
       origem: 'pdf',
+      nivel_confianca: trustLevelForChunk('pdf', ''),
       slug,
       titulo: label,
       url_fonte: '',
@@ -293,6 +296,7 @@ async function buildKnowledgeSources() {
 
     documents.push({
       origem: 'crawl',
+      nivel_confianca: trustLevelForChunk('crawl', url),
       slug,
       titulo: label,
       url_fonte: url,
@@ -391,9 +395,10 @@ async function seedRag(tx, documents, entryIdsBySlug) {
 
     const documentRows = await tx`
       INSERT INTO rag_documento
-        (origem, slug, titulo, url_fonte, caminho_origem, checksum, metadados, ativo, dthr_atualizacao)
+        (origem, nivel_confianca, slug, titulo, url_fonte, caminho_origem, checksum, metadados, ativo, dthr_atualizacao)
       VALUES (
         ${document.origem},
+        ${document.nivel_confianca},
         ${document.slug},
         ${document.titulo},
         ${document.url_fonte || null},
@@ -405,6 +410,7 @@ async function seedRag(tx, documents, entryIdsBySlug) {
       )
       ON CONFLICT (slug) DO UPDATE SET
         origem = EXCLUDED.origem,
+        nivel_confianca = EXCLUDED.nivel_confianca,
         titulo = EXCLUDED.titulo,
         url_fonte = EXCLUDED.url_fonte,
         caminho_origem = EXCLUDED.caminho_origem,
@@ -424,6 +430,7 @@ async function seedRag(tx, documents, entryIdsBySlug) {
             id_documento,
             id_faq_entrada,
             origem,
+            nivel_confianca,
             chunk_uid,
             ordem,
             titulo,
@@ -440,6 +447,7 @@ async function seedRag(tx, documents, entryIdsBySlug) {
           ${documentId},
           ${chunk.id_faq_entrada_slug ? entryIdsBySlug.get(chunk.id_faq_entrada_slug) ?? null : null},
           ${document.origem},
+          ${document.nivel_confianca},
           ${chunk.chunk_uid},
           ${chunk.ordem},
           ${chunk.titulo},
@@ -456,6 +464,7 @@ async function seedRag(tx, documents, entryIdsBySlug) {
           id_documento = EXCLUDED.id_documento,
           id_faq_entrada = EXCLUDED.id_faq_entrada,
           origem = EXCLUDED.origem,
+          nivel_confianca = EXCLUDED.nivel_confianca,
           ordem = EXCLUDED.ordem,
           titulo = EXCLUDED.titulo,
           conteudo = EXCLUDED.conteudo,

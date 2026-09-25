@@ -8,6 +8,7 @@ import { embedInfo } from '../utils/llmProvider'
 import { extractPdfChunks } from '../utils/pdfLoader'
 import { extractCrawlChunks } from '../utils/crawlLoader'
 import { listarFaq } from '../repositorios/faq'
+import { trustLevelForChunk } from '../utils/trustLevel.mjs'
 import ragIndexAsset from '../assets/rag-index.json?url'
 
 interface RagIndexFile {
@@ -99,7 +100,8 @@ async function indexFaq() {
           const embedded = await embedChunk({
             ...entry,
             url: entry.url ?? '',
-            kind: 'faq'
+            kind: 'faq',
+            nivelConfianca: trustLevelForChunk('faq', entry.url ?? '')
           })
           addChunk(embedded)
         } catch (e) {
@@ -138,7 +140,7 @@ async function indexPdfs() {
     try {
       const chunks = await extractPdfChunks(pdfPath, label, '')
       for (const chunk of chunks) {
-        const embedded = await embedChunk({ ...chunk, kind: 'pdf' })
+        const embedded = await embedChunk({ ...chunk, kind: 'pdf', nivelConfianca: trustLevelForChunk('pdf', '') })
         addChunk(embedded)
       }
       console.log(`[RAG] Indexed ${chunks.length} chunks from ${file}`)
@@ -168,7 +170,7 @@ async function indexCrawl() {
     try {
       const chunks = await extractCrawlChunks(join(crawlDir, file), slug)
       for (const chunk of chunks) {
-        const embedded = await embedChunk({ ...chunk, kind: 'crawl' })
+        const embedded = await embedChunk({ ...chunk, kind: 'crawl', nivelConfianca: trustLevelForChunk('crawl', chunk.url) })
         addChunk(embedded)
       }
       total += chunks.length

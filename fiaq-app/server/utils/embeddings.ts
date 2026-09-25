@@ -1,6 +1,7 @@
 import { embed } from './llmProvider'
 
 export type ChunkKind = 'faq' | 'pdf' | 'crawl'
+export type NivelConfianca = 'oficial' | 'institucional'
 
 export interface EmbeddedChunk {
   id: string
@@ -8,6 +9,7 @@ export interface EmbeddedChunk {
   conteudo: string
   url: string
   kind: ChunkKind
+  nivelConfianca: NivelConfianca
   vector: number[]
 }
 

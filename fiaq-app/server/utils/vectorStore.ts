@@ -1,10 +1,11 @@
-import { type ChunkKind, type EmbeddedChunk, cosineSimilarity } from './embeddings'
+import { type ChunkKind, type EmbeddedChunk, type NivelConfianca, cosineSimilarity } from './embeddings'
 
 export interface SearchResult {
   id: string
   titulo: string
   conteudo: string
   url: string
+  nivelConfianca: NivelConfianca
   score: number
 }
 
@@ -14,6 +15,14 @@ const KIND_BOOST: Record<ChunkKind, number> = {
   faq: 0.06,
   pdf: 0.02,
   crawl: 0
+}
+
+// Domina o boost de tipo: um crawl oficial (SAA/DEG/sistema oficial) deve
+// ficar acima de qualquer coisa institucional (grupo estudantil, empresa
+// júnior...) mesmo com score bruto parecido.
+const CONFIANCA_BOOST: Record<NivelConfianca, number> = {
+  oficial: 0.12,
+  institucional: 0
 }
 
 const store: EmbeddedChunk[] = []
@@ -70,7 +79,10 @@ export function topK(queryVector: number[], k = 4): SearchResult[] {
       titulo: chunk.titulo,
       conteudo: chunk.conteudo,
       url: chunk.url,
-      score: cosineSimilarity(queryVector, chunk.vector) + (KIND_BOOST[chunk.kind] ?? 0)
+      nivelConfianca: chunk.nivelConfianca,
+      score: cosineSimilarity(queryVector, chunk.vector)
+        + (KIND_BOOST[chunk.kind] ?? 0)
+        + (CONFIANCA_BOOST[chunk.nivelConfianca] ?? 0)
     }))
     .sort((a, b) => b.score - a.score)
     .slice(0, k)
@@ -96,7 +108,7 @@ export function keywordTopK(query: string, k = 4): SearchResult[] {
       const titleTerms = new Set(lexicalTerms(chunk.titulo))
       const contentTerms = new Set(lexicalTerms(chunk.conteudo).slice(0, 180))
       let matched = 0
-      let score = KIND_BOOST[chunk.kind] ?? 0
+      let score = (KIND_BOOST[chunk.kind] ?? 0) + (CONFIANCA_BOOST[chunk.nivelConfianca] ?? 0)
 
       for (const term of queryTerms) {
         let termMatched = false
@@ -125,6 +137,7 @@ export function keywordTopK(query: string, k = 4): SearchResult[] {
         titulo: chunk.titulo,
         conteudo: chunk.conteudo,
         url: chunk.url,
+        nivelConfianca: chunk.nivelConfianca,
         score
       }
     })
