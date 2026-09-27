@@ -1,36 +1,15 @@
 ---
-title: Calendário Acadêmico de Graduação – saa
-url: https://saa.unb.br/calendario-academico
-contexto: calendario-academico
-source: unb-official-discovery
-score: 68
-discovered_at: 2026-06-16T20:44:10.782Z
+title: Calendário Acadêmico da UnB – O Que É e Onde Consultar
+url: https://saa.unb.br/calendario-academico-graduacao/
+contexto: secretaria-academica
+source: manual-research
+discovered_at: 2026-09-27T00:00:00.000Z
 ---
-Calendário Acadêmico de Graduação
-Tipos
-Calendário de Verão
-Calendário de Verão de 2026 – 2025.4 (29/12/2025)
-Calendário de Verão de 2024 – 2023.4 (07/12/2023)
-Calendário por Atividade
-Calendário por Atividades 2026.2 (15/06/2026)
-Calendário por Atividades 2026.1 (27/02/2026)
-Calendário por Atividades 2025.2 (06/10/2025)
-Calendário por Atividades 2025.1 (30/07/2025)
-Calendário por Atividades 2024.2 (19/11/2024)
-Calendário por Atividades 2024.1 (23/09/2024)
-Calendário por Atividades 2023.2 (15/12/2023)
-Calendário por Atividades 2023.1 (04/05/2023)
-Calendário de Matrícula
-Calendário de Matrícula 2026.2 (15/06/2026)
-Calendário de Matrícula 2026.1 (27/02/2026)
-Calendário de Matrícula 2025.2 (31/07/2025)
-Calendário de Matrícula 2025.1 (02/12/2024)
-Calendário de Matrícula 2024.2 (16/09/2024)
-Calendário de Matrícula 2024.1 (07/12/2023)
-Calendário de Matrícula 2023.2 (05/07/2023)
-Calendário de Matrícula 2023.1 (27/03/2023)
-Períodos letivos de 2026
-Conforme a Resolução CEPE nº 140/2025 , ficam aprovados os períodos de aulas para o ano de 2026 , conforme o cronograma abaixo:
-2026.1: 16/03 a 18/07/2026
-2026.2: 10/08 a 14/12/2026
-2026.4 (verão): 11/01 a 17/02/2027
+Calendário Acadêmico da UnB
+O calendário acadêmico é o documento oficial da SAA que define as datas de cada etapa do semestre letivo — é a referência pra saber prazos de matrícula, início e fim das aulas, período de provas, férias, etc. Existem calendários separados para graduação e para pós-graduação, publicados como PDF no site da SAA a cada semestre (geralmente ainda no semestre anterior, pra dar tempo de planejamento).
+
+Onde consultar o calendário vigente: graduação em saa.unb.br/calendario-academico-graduacao/; pós-graduação em saa.unb.br/calendario-academico-pos-graduacao/. Como as datas mudam a cada semestre, o caminho mais seguro pra saber a data exata de qualquer prazo (matrícula, rematrícula, início/fim do período letivo, trancamento, etc.) é sempre conferir o PDF do calendário vigente publicado nessas páginas — evite se basear em datas de semestres anteriores.
+
+Estrutura geral de um semestre (a ordem costuma se repetir, mesmo com datas diferentes a cada vez): 1) divulgação do calendário e período de planejamento; 2) período de solicitação de matrícula em disciplinas; 3) resultado da matrícula; 4) rematrícula (segunda chance nas turmas com vaga sobrando); 5) início do período letivo (primeiro dia de aula); 6) semestre letivo em si, com avaliações ao longo do período; 7) fim do período letivo; 8) período de verão (opcional, entre semestres); 9) férias acadêmicas.
+
+Prazos que são definidos EM RELAÇÃO ao calendário (não em datas fixas) — por isso, sempre exigem conferir o calendário vigente para saber a data exata: Trancamento Geral de Matrícula automático (até 75% do semestre); Trancamento de disciplina automático (até 50% do semestre); período de ajuste de matrícula; período de solicitação de revisão de menção; prazo de aditamento de estágio.
