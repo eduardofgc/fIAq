@@ -94,6 +94,9 @@
             onBlur={() => (composerFocused = false)}
             onSend={sendMessage}
           />
+          <p class="mt-1.5 text-center text-[11px] leading-tight text-slate-400 sm:mt-2 sm:text-xs">
+            Ferramenta em Beta: sempre confira informações importantes.
+          </p>
         </div>
       </div>
     </section>

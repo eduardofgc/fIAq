@@ -55,6 +55,32 @@ O chatbot usa uma arquitetura **DB-first**:
    `web_resposta_candidata`. Um administrador pode aprovar a resposta no `/admin`
    para transformá-la em novo chunk RAG.
 
+### Nível de confiança (`nivel_confianca`)
+
+Desde a migration `09_rag_nivel_confianca.sql`, `rag_documento`/`rag_chunk` têm
+uma coluna `nivel_confianca` (`'oficial'` | `'institucional'`), separada de
+`origem` (que descreve só como o conteúdo entrou no sistema). `origem`
+responde "isso é FAQ, PDF ou crawl?"; `nivel_confianca` responde "isso tem
+autoridade normativa sobre regras/prazos/procedimentos, ou é só contexto
+institucional (grupo estudantil, empresa júnior, site de captação...)?".
+
+FAQ curado e PDFs de editais são sempre `'oficial'`. Páginas crawleadas são
+classificadas por host contra uma lista curada em
+`fiaq-app/server/utils/trustLevel.mjs` (SAA, DEG, SIGAA, decanatos, sistemas
+oficiais, gov.br/MEC, coordenação do CIC...) — qualquer host fora dessa lista
+cai em `'institucional'` por padrão. **A lista precisa ficar sincronizada**
+entre `trustLevel.mjs` e o `ARRAY[...]` de backfill da migration; se um novo
+host oficial for crawleado, atualize os dois.
+
+Isso afeta o ranking (`buscar_rag_chunks` dá um boost maior a `'oficial'` do
+que o boost de `origem`) e, mais importante, o **gate de "contexto local
+suficiente"** em `/api/chat`: um resultado só `'institucional'` nunca conta
+como suficiente sozinho, mesmo com score alto — sempre libera o fallback pra
+pesquisa web. Isso corrigiu um caso real em que uma pergunta sobre troca de
+curso batia palavra com a página de uma empresa júnior de Engenharia da
+Computação (`struct.unb.br`, score >1.9 no ranking léxico) e o bot respondia
+com aquele conteúdo sem relação nenhuma com a pergunta.
+
 O modelo de chat e o modelo de embedding são papéis diferentes.
 `google/gemma-4-31b-it:free` escreve a resposta; o embedding model
 transforma perguntas e chunks em vetores. O deploy usa
@@ -152,6 +178,7 @@ erDiagram
     RAG_DOCUMENTO {
         int id PK
         varchar origem
+        varchar nivel_confianca
         varchar slug
         varchar titulo
         text url_fonte
@@ -166,6 +193,7 @@ erDiagram
         int id_documento FK
         int id_faq_entrada FK
         varchar origem
+        varchar nivel_confianca
         varchar chunk_uid
         int ordem
         varchar titulo
@@ -207,6 +235,7 @@ erDiagram
 | 2026-06 | Auth substituído por agregação anônima de perguntas | Permite detectar perguntas em alta e controlar qualidade das respostas mais frequentes sem armazenar dados pessoais. |
 | 2026-06 | RAG migrado para `pgvector` | Organiza todo o conhecimento no banco, permite seed idempotente e deixa o JSON apenas como fallback. |
 | 2026-06 | Métricas mantêm `embedding JSONB` | A agregação anônima ainda tem baixo volume; evita complexidade extra fora do caminho crítico do RAG. |
+| 2026-09 | `nivel_confianca` adicionado ao RAG | `origem` (faq/pdf/crawl) não distinguia autoridade normativa — uma página de empresa júnior competia de igual pra igual com a SAA/DEG na busca. Separa "como entrou no sistema" de "quanto é confiável". |
 
 > **Autores/Decisões originais:** Gustavo Pavanelli e Lucas Centurion
 >
