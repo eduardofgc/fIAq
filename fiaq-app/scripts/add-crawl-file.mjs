@@ -4,7 +4,7 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { trustLevelForChunk } from '../server/utils/trustLevel.mjs'
+import { trustLevelForChunk } from './trustLevel.mjs'
 
 function loadEnv() {
   try {

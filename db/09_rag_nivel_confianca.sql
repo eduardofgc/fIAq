@@ -16,7 +16,7 @@
 --                    como contexto, mas nunca sozinhas como fonte normativa.
 --
 -- A lista de hosts "oficial" precisa ficar em sincronia com
--- fiaq-app/server/utils/trustLevel.mjs (fonte usada pelos scripts de
+-- fiaq-app/scripts/trustLevel.mjs (fonte usada pelos scripts de
 -- ingestao). Se um novo host oficial for crawleado no futuro, atualize os
 -- dois lugares.
 
@@ -52,7 +52,9 @@ WHERE rd.id = he.id
     'dds.dac.unb.br', 'dpg.unb.br', 'portalsig.unb.br', 'ouvidoria.unb.br',
     'sdh.unb.br', 'sti.unb.br', 'cerimonial.unb.br', 'bce.unb.br', 'ru.unb.br',
     'dasu.unb.br', 'proic.unb.br', 'acessibilidade.unb.br', 'www.cic.unb.br',
-    'cic.unb.br', 'exatas.unb.br', 'www.exatas.unb.br', 'gov.br', 'www.gov.br'
+    'cic.unb.br', 'exatas.unb.br', 'www.exatas.unb.br', 'gov.br', 'www.gov.br',
+    'portalsei.unb.br', 'sei.unb.br', 'www.portalsei.unb.br',
+    'aprender3.unb.br', 'matriculaweb.unb.br'
   ]);
 
 -- Chunk espelha o nivel_confianca do documento pai (mesmo padrao ja usado

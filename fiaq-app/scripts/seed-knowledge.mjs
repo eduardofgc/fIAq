@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import postgres from 'postgres'
 import { extractText } from 'unpdf'
-import { trustLevelForChunk } from '../server/utils/trustLevel.mjs'
+import { trustLevelForChunk } from './trustLevel.mjs'
 
 const VECTOR_DIM = 2048
 const FAQ_ORDER = [
