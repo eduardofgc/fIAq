@@ -135,6 +135,7 @@ async function embed(text) {
       return await embedOnce(text)
     } catch (error) {
       lastError = error
+      if (error.quotaExceeded) break
       if (i < attempts - 1) await sleep(800 * (i + 1))
     }
   }
@@ -151,7 +152,11 @@ async function embedOnce(text) {
     })
 
     const body = await res.text()
-    if (!res.ok) throw new Error(`OpenRouter embed error: ${res.status} ${body}`)
+    if (!res.ok) {
+      const error = new Error(`OpenRouter embed error: ${res.status} ${body}`)
+      if (res.status === 429) error.quotaExceeded = true
+      throw error
+    }
 
     const data = JSON.parse(body)
     const vector = data.data?.[0]?.embedding
@@ -310,22 +315,17 @@ async function buildKnowledgeSources() {
   return { categories, documents }
 }
 
-async function embedDocuments(documents) {
-  const chunks = documents.flatMap(document =>
-    document.chunks.map(chunk => ({ document, chunk }))
-  )
+async function loadExistingState(sql) {
+  const docRows = await sql`SELECT slug, checksum FROM rag_documento`
+  const documentChecksums = new Map(docRows.map(row => [row.slug, row.checksum]))
 
-  console.log(`[RAG] Gerando ${chunks.length} embeddings com ${embedInfo.provider}/${embedInfo.model}`)
+  const chunkRows = await sql`
+    SELECT chunk_uid FROM rag_chunk
+    WHERE embedding IS NOT NULL AND modelo_embedding = ${embedInfo.model}
+  `
+  const embeddedChunkUids = new Set(chunkRows.map(row => row.chunk_uid))
 
-  for (let i = 0; i < chunks.length; i++) {
-    const item = chunks[i]
-    const vector = await embed(`${item.chunk.titulo}\n${item.chunk.conteudo}`)
-    item.chunk.embedding = toVectorLiteral(vector)
-
-    if ((i + 1) % 10 === 0 || i + 1 === chunks.length) {
-      console.log(`[RAG] Embeddings: ${i + 1}/${chunks.length}`)
-    }
-  }
+  return { documentChecksums, embeddedChunkUids }
 }
 
 async function seedFaq(tx, categories) {
@@ -386,13 +386,8 @@ async function seedFaq(tx, categories) {
   return entryIdsBySlug
 }
 
-async function seedRag(tx, documents, entryIdsBySlug) {
-  const activeDocumentSlugs = []
-  const activeChunkUids = []
-
+async function seedRag(tx, documents, entryIdsBySlug, allDocumentSlugs, allChunkUids) {
   for (const document of documents) {
-    activeDocumentSlugs.push(document.slug)
-
     const documentRows = await tx`
       INSERT INTO rag_documento
         (origem, nivel_confianca, slug, titulo, url_fonte, caminho_origem, checksum, metadados, ativo, dthr_atualizacao)
@@ -423,7 +418,8 @@ async function seedRag(tx, documents, entryIdsBySlug) {
     const documentId = documentRows[0].id
 
     for (const chunk of document.chunks) {
-      activeChunkUids.push(chunk.chunk_uid)
+      if (!chunk.embedding) continue
+
       await tx`
         INSERT INTO rag_chunk
           (
@@ -479,22 +475,22 @@ async function seedRag(tx, documents, entryIdsBySlug) {
     }
   }
 
-  if (activeChunkUids.length > 0) {
+  if (allChunkUids.length > 0) {
     await tx`
       UPDATE rag_chunk
       SET ativo = FALSE,
           dthr_atualizacao = CURRENT_TIMESTAMP
-      WHERE chunk_uid NOT IN ${tx(activeChunkUids)}
+      WHERE chunk_uid NOT IN ${tx(allChunkUids)}
         AND COALESCE(metadados->>'tipo', '') <> 'admin_web_validado'
     `
   }
 
-  if (activeDocumentSlugs.length > 0) {
+  if (allDocumentSlugs.length > 0) {
     await tx`
       UPDATE rag_documento
       SET ativo = FALSE,
           dthr_atualizacao = CURRENT_TIMESTAMP
-      WHERE slug NOT IN ${tx(activeDocumentSlugs)}
+      WHERE slug NOT IN ${tx(allDocumentSlugs)}
         AND COALESCE(metadados->>'tipo', '') <> 'admin_web_validado'
     `
   }
@@ -506,6 +502,8 @@ async function main() {
     throw new Error('DATABASE_URL não configurada. Use uma connection string com permissão de escrita para o seed.')
   }
 
+  const maxEmbeddings = Number(process.env.SEED_MAX_EMBEDDINGS || 40)
+
   const sql = postgres(connectionString, {
     max: 1,
     prepare: false,
@@ -513,20 +511,63 @@ async function main() {
     connect_timeout: 10
   })
 
-  const { categories, documents } = await buildKnowledgeSources()
-  await embedDocuments(documents)
-
   try {
-    await sql.begin(async (tx) => {
-      const entryIdsBySlug = await seedFaq(tx, categories)
-      await seedRag(tx, documents, entryIdsBySlug)
+    const { categories, documents } = await buildKnowledgeSources()
+    const { documentChecksums, embeddedChunkUids } = await loadExistingState(sql)
+
+    const allDocumentSlugs = documents.map(document => document.slug)
+    const allChunkUids = documents.flatMap(document => document.chunks.map(chunk => chunk.chunk_uid))
+
+    const flatChunks = documents.flatMap(document =>
+      document.chunks.map(chunk => ({ document, chunk }))
+    )
+
+    const pendingChunks = flatChunks.filter(({ document, chunk }) => {
+      const checksumMatches = documentChecksums.get(document.slug) === document.checksum
+      return !(checksumMatches && embeddedChunkUids.has(chunk.chunk_uid))
     })
 
-    const totalChunks = documents.reduce((sum, document) => sum + document.chunks.length, 0)
     console.log(
-      `Seed de conhecimento concluído: ${categories.length} categorias, `
-      + `${documents.length} documentos, ${totalChunks} chunks.`
+      `[RAG] ${flatChunks.length - pendingChunks.length}/${flatChunks.length} chunks já embeddados; `
+      + `${pendingChunks.length} pendente(s). Limite desta execução: ${maxEmbeddings}.`
     )
+
+    let embeddedCount = 0
+    let quotaExhausted = false
+
+    for (const item of pendingChunks) {
+      if (embeddedCount >= maxEmbeddings) break
+
+      try {
+        const vector = await embed(`${item.chunk.titulo}\n${item.chunk.conteudo}`)
+        item.chunk.embedding = toVectorLiteral(vector)
+        embeddedCount++
+        if (embeddedCount % 10 === 0) console.log(`[RAG] Embeddings gerados nesta execução: ${embeddedCount}`)
+      } catch (error) {
+        if (error.quotaExceeded) {
+          quotaExhausted = true
+          console.warn('[RAG] Cota diária de embeddings esgotada. Progresso será salvo; rode o script de novo depois do reset.')
+          break
+        }
+        throw error
+      }
+    }
+
+    await sql.begin(async (tx) => {
+      const entryIdsBySlug = await seedFaq(tx, categories)
+      await seedRag(tx, documents, entryIdsBySlug, allDocumentSlugs, allChunkUids)
+    })
+
+    const remaining = pendingChunks.length - embeddedCount
+    console.log(
+      `Seed parcial concluído: ${embeddedCount} chunk(s) novo(s) gravado(s) nesta execução, `
+      + `${remaining} chunk(s) ainda pendente(s) de ${flatChunks.length} totais.`
+    )
+    if (remaining > 0) {
+      console.log(quotaExhausted
+        ? 'Espere o reset diário da cota e rode "node scripts/seed-knowledge.mjs" de novo para continuar.'
+        : 'Rode "node scripts/seed-knowledge.mjs" de novo para continuar.')
+    }
   } finally {
     await sql.end()
   }
