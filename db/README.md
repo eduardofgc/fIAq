@@ -66,7 +66,7 @@ institucional (grupo estudantil, empresa júnior, site de captação...)?".
 
 FAQ curado e PDFs de editais são sempre `'oficial'`. Páginas crawleadas são
 classificadas por host contra uma lista curada em
-`fiaq-app/server/utils/trustLevel.mjs` (SAA, DEG, SIGAA, decanatos, sistemas
+`fiaq-app/scripts/trustLevel.mjs` (SAA, DEG, SIGAA, decanatos, sistemas
 oficiais, gov.br/MEC, coordenação do CIC...) — qualquer host fora dessa lista
 cai em `'institucional'` por padrão. **A lista precisa ficar sincronizada**
 entre `trustLevel.mjs` e o `ARRAY[...]` de backfill da migration; se um novo

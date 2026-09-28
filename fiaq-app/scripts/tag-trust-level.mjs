@@ -1,10 +1,10 @@
 // Adiciona/atualiza o campo nivelConfianca nos chunks do fallback local
 // server/assets/rag-index.json a partir da classificação de host em
-// server/utils/trustLevel.mjs — sem precisar gerar embeddings de novo.
+// scripts/trustLevel.mjs — sem precisar gerar embeddings de novo.
 // Uso: node scripts/tag-trust-level.mjs
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { trustLevelForChunk } from '../server/utils/trustLevel.mjs'
+import { trustLevelForChunk } from './trustLevel.mjs'
 
 const INDEX_PATH = join(process.cwd(), 'server', 'assets', 'rag-index.json')
 

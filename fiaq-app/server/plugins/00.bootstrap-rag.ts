@@ -8,7 +8,7 @@ import { embedInfo } from '../utils/llmProvider'
 import { extractPdfChunks } from '../utils/pdfLoader'
 import { extractCrawlChunks } from '../utils/crawlLoader'
 import { listarFaq } from '../repositorios/faq'
-import { trustLevelForChunk } from '../utils/trustLevel.mjs'
+import { trustLevelForChunk } from '../../scripts/trustLevel.mjs'
 import ragIndexAsset from '../assets/rag-index.json?url'
 
 interface RagIndexFile {
