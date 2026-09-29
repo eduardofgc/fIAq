@@ -38,6 +38,9 @@ COPY --from=build /repo/fiaq-app/package.json ./fiaq-app/package.json
 # scripts + data permitem rodar os seeds de dentro do container
 COPY --from=build /repo/fiaq-app/scripts ./fiaq-app/scripts
 COPY --from=build /repo/fiaq-app/data ./fiaq-app/data
+# server/assets/rag-index.json: embeddings pré-computados localmente, reaproveitados
+# pelo seed-knowledge.mjs pra não gastar cota de API re-embeddando conteúdo já indexado
+COPY --from=build /repo/fiaq-app/server/assets ./fiaq-app/server/assets
 WORKDIR /repo/fiaq-app
 EXPOSE 3000
 CMD ["node", "build"]
