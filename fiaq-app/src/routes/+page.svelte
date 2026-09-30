@@ -36,7 +36,7 @@
 </script>
 
 <svelte:head>
-  <title>fIAq — Assistente do CIC/UnB</title>
+  <title>fIAq - Assistente do CIC/UnB</title>
   <meta
     name="description"
     content="Base de dúvidas frequentes do departamento de Ciência da Computação - UnB"

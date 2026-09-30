@@ -397,7 +397,7 @@
 </script>
 
 <svelte:head>
-  <title>Admin — fIAq</title>
+  <title>Admin - fIAq</title>
   <meta name="description" content="Curadoria administrativa do conhecimento do fIAq." />
 </svelte:head>
 

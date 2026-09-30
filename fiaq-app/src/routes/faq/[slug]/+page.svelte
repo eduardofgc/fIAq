@@ -153,7 +153,7 @@
 </script>
 
 <svelte:head>
-  <title>{category?.titulo ?? 'FAQ'} — fIAq</title>
+  <title>{category?.titulo ?? 'FAQ'} - fIAq</title>
   <meta
     name="description"
     content={`Perguntas frequentes sobre ${category?.titulo ?? 'o curso'} no CIC/UnB.`}

@@ -9,7 +9,7 @@
 </script>
 
 <svelte:head>
-  <title>Contatos — {departamento?.nome ?? 'Departamento não encontrado'} — fIAq</title>
+  <title>Contatos - {departamento?.nome ?? 'Departamento não encontrado'} - fIAq</title>
   <meta name="description" content={departamento?.descricao ?? 'Departamento não encontrado.'} />
 </svelte:head>
 

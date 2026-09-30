@@ -33,7 +33,7 @@ export const departamentos: Departamento[] = [
     icon: 'i-lucide-cpu',
     badge: 'Departamento CIC/UnB',
     descricao: 'Informações de contato do Departamento de Ciência da Computação da Universidade de Brasília.',
-    endereco: 'Prédio CIC/EST — Campus Darcy Ribeiro, Brasília, DF, CEP 70910-900',
+    endereco: 'Prédio CIC/EST, Campus Darcy Ribeiro, Brasília, DF, CEP 70910-900',
     mapsUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4814.823601540712!2d-47.87162942391438!3d-15.75857962207623!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x935a3bb88f71361f%3A0x3933d293e644ad55!2zUHLDqWRpbyBkZSBDacOqbmNpYSBkYSBDb21wdXRhw6fDo28gZSBFc3RhdMOtc3RpY2EgLSBDSUMvRVNU!5e1!3m2!1spt-BR!2sbr!4v1782043857591!5m2!1spt-BR!2sbr',
     cards: [
       {

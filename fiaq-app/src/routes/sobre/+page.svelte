@@ -35,20 +35,17 @@
     { name: 'Fernando Augusto', github: 'fernando-augustop' },
     { name: 'Gustavo Nascimento', github: 'PavanelliGustavo' },
     { name: 'Eduardo Rocha', github: 'eduardofgc' },
-    { name: 'Lucas Pereira', github: 'lucsap' },
     { name: 'Samara Gomes', github: 'samaragomess' },
     { name: 'Augusto Faller', github: 'tosgual' },
-    { name: 'Lucas Centurion Netto', github: 'LucasCenturionNetto' },
-    { name: 'Ricardo Rian', github: 'RianRSM' },
-    { name: 'Érica Feitosa', github: 'ericafeitosa' }
+    { name: 'Lucas Centurion Netto', github: 'LucasCenturionNetto' }
   ]
 </script>
 
 <svelte:head>
-  <title>Sobre o Projeto — fIAq</title>
+  <title>Sobre o Projeto - fIAq</title>
   <meta
     name="description"
-    content="Objetivo, tecnologias, funcionamento da IA e equipe do projeto fIAq — assistente virtual do CIC/UnB."
+    content="Objetivo, tecnologias, funcionamento da IA e equipe do projeto fIAq, assistente virtual do CIC/UnB."
   />
 </svelte:head>
 
@@ -118,7 +115,7 @@
     <section>
       <h2 class="mb-6 text-center text-xl font-extrabold text-[#1a2e5a] sm:text-2xl">Equipe</h2>
       <p class="-mt-3 mb-6 text-center text-xs text-gray-500 sm:text-sm">
-        Projeto desenvolvido por alunos da disciplina de Técnicas de Programação 2 — UnB 2026.1
+        Projeto desenvolvido por alunos da disciplina de Técnicas de Programação 2, UnB 2026.1
       </p>
       <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         {#each team as member, idx (member.github)}
