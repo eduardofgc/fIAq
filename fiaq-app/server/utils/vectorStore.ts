@@ -31,9 +31,9 @@ const store: EmbeddedChunk[] = []
 // "último edital de X", fazendo o documento errado vencer só por essa palavra.
 const LEXICAL_STOPWORDS = new Set([
   'a', 'ao', 'aos', 'as', 'como', 'com', 'da', 'das', 'de', 'do', 'dos', 'e',
-  'edital', 'em', 'eu', 'fazer', 'isso', 'me', 'na', 'no', 'o', 'os', 'ou',
-  'para', 'por', 'posso', 'quais', 'qual', 'quando', 'que', 'quero', 'sao',
-  'se', 'sobre', 'um', 'uma', 'unb'
+  'edital', 'em', 'eu', 'fazer', 'ha', 'isso', 'ja', 'la', 'lo', 'me', 'na',
+  'no', 'o', 'os', 'ou', 'para', 'por', 'posso', 'quais', 'qual', 'quando',
+  'que', 'quero', 'sao', 'se', 'sobre', 'tu', 'um', 'uma', 'unb'
 ])
 
 function normalizeText(text: string): string {
@@ -49,7 +49,7 @@ function normalizeText(text: string): string {
 function lexicalTerms(text: string): string[] {
   return normalizeText(text)
     .split(/\s+/)
-    .filter(term => term.length >= 3 && !LEXICAL_STOPWORDS.has(term))
+    .filter(term => term.length >= 2 && !LEXICAL_STOPWORDS.has(term))
 }
 
 export function addChunk(chunk: EmbeddedChunk): void {

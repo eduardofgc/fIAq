@@ -131,8 +131,9 @@ function buildCompactContext(results: SearchResult[]): string {
 
 const STOPWORDS = new Set([
   'a', 'ao', 'aos', 'as', 'como', 'com', 'da', 'das', 'de', 'do', 'dos', 'e',
-  'em', 'eu', 'fazer', 'isso', 'me', 'na', 'no', 'o', 'os', 'ou', 'para',
-  'posso', 'que', 'quero', 'sao', 'se', 'um', 'uma', 'unb'
+  'em', 'eu', 'fazer', 'ha', 'isso', 'ja', 'la', 'lo', 'me', 'na', 'no', 'o',
+  'os', 'ou', 'para', 'posso', 'que', 'quero', 'sao', 'se', 'tu', 'um', 'uma',
+  'unb'
 ])
 
 const GENERIC_CONTEXT_TERMS = new Set([
@@ -244,7 +245,7 @@ function normalizeText(text: string): string {
 function terms(text: string): string[] {
   return normalizeText(text)
     .split(/\s+/)
-    .filter(term => term.length >= 3 && !STOPWORDS.has(term))
+    .filter(term => term.length >= 2 && !STOPWORDS.has(term))
 }
 
 function isUnbScopedQuestion(question: string): boolean {
