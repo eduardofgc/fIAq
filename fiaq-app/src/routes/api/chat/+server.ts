@@ -58,7 +58,8 @@ Regras:
 * Não afirme que matrícula de calouros é automática, nem descreva regra de calouros, se isso não estiver explicitamente confirmado no contexto.
 * Em assédio, discriminação, violência ou saúde mental, oriente a procurar a Ouvidoria e o CAEP.
 * NUNCA mostre seu raciocínio interno, rascunhos ou análise do contexto na resposta. Vá direto à resposta final.
-* Não use prefixos como "The user wants...", "Context says...", "I need to...". Responda apenas em português brasileiro.`
+* Não use prefixos como "The user wants...", "Context says...", "I need to...". Responda apenas em português brasileiro.
+* Não use travessão (—) em nenhuma parte da resposta. Use vírgula, ponto, dois-pontos ou parênteses no lugar.`
 
 function buildPrompt(context: string, question: string): string {
   return `<contexto>

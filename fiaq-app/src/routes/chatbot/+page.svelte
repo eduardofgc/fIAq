@@ -50,7 +50,7 @@
 </script>
 
 <svelte:head>
-  <title>Assistente Virtual — fIAq</title>
+  <title>Assistente Virtual - fIAq</title>
   <meta
     name="description"
     content="Converse com o assistente virtual do fIAq para tirar dúvidas acadêmicas do CIC/UnB."
