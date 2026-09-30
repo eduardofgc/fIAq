@@ -1,5 +1,5 @@
 ---
-title: RU
+title: RU – Página Inicial e Menu do Site
 url: https://ru.unb.br/
 contexto: restaurante-universitario
 source: unb-official-discovery
