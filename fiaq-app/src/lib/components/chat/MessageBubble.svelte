@@ -40,6 +40,13 @@
   const hasWebSources = $derived(message.sources?.some(source => source.kind === 'web' || source.kind === 'official') ?? false)
   const sourceCount = $derived(message.sources?.length ?? 0)
   const sourceCountLabel = $derived(`${sourceCount} ${sourceCount === 1 ? 'fonte' : 'fontes'}`)
+  // Resposta montada só com conteúdo do banco interno confiável (sem busca
+  // web): mostra um aviso direto em vez da lista expansível de fontes, já
+  // que aqui a confiança é da própria base curada, não de uma fonte externa.
+  const isDbOnlyAnswer = $derived(sourceCount > 0 && !hasWebSources)
+  const dbSourceTitles = $derived(
+    [...new Set((message.sources ?? []).map(source => source.titulo.trim()).filter(Boolean))].join(', ')
+  )
 
   const feedbackLabel = $derived.by(() => {
     if (message.feedback === 'helpful') return 'Ajudou'
@@ -250,32 +257,39 @@
 
       {#if message.sources && message.sources.length > 0}
         <div class="px-1">
-          <Button
-            type="button"
-            variant="outline"
-            aria-expanded={showSources}
-            aria-controls={`sources-${message.id}`}
-            class="inline-flex min-h-10 w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs font-black uppercase tracking-wide text-slate-600 shadow-sm transition-colors hover:border-[#1a2e5a] hover:bg-blue-50/60 hover:text-[#1a2e5a] focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 sm:w-auto sm:min-w-64"
-            onclick={() => {
-              showSources = !showSources
-            }}
-          >
-            <span class="flex min-w-0 items-center gap-2">
-              <FiaqIcon name="i-lucide-list-checks" class="h-4 w-4 shrink-0 text-[#00a155]" />
-              <span>Fontes verificadas</span>
-            </span>
-            <span class="flex shrink-0 items-center gap-2 text-[11px] normal-case tracking-normal text-slate-500">
-              {sourceCountLabel}
-              <FiaqIcon name="i-lucide-chevron-down" class={`h-3.5 w-3.5 transition-transform ${showSources ? 'rotate-180' : ''}`} />
-            </span>
-          </Button>
-
-          {#if showSources}
-            <div id={`sources-${message.id}`} class="mt-2 grid gap-1.5 rounded-xl border border-slate-200 bg-white/80 p-2 shadow-sm">
-              {#each message.sources as source (source.id)}
-                <SourceChip {source} />
-              {/each}
+          {#if isDbOnlyAnswer}
+            <div class="inline-flex min-h-10 w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs font-semibold text-slate-600 shadow-sm sm:w-auto">
+              <FiaqIcon name="i-lucide-database" class="h-4 w-4 shrink-0 text-[#00a155]" />
+              <span>Consultado do banco de dados ({dbSourceTitles})</span>
             </div>
+          {:else}
+            <Button
+              type="button"
+              variant="outline"
+              aria-expanded={showSources}
+              aria-controls={`sources-${message.id}`}
+              class="inline-flex min-h-10 w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs font-black uppercase tracking-wide text-slate-600 shadow-sm transition-colors hover:border-[#1a2e5a] hover:bg-blue-50/60 hover:text-[#1a2e5a] focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 sm:w-auto sm:min-w-64"
+              onclick={() => {
+                showSources = !showSources
+              }}
+            >
+              <span class="flex min-w-0 items-center gap-2">
+                <FiaqIcon name="i-lucide-list-checks" class="h-4 w-4 shrink-0 text-[#00a155]" />
+                <span>Fontes verificadas</span>
+              </span>
+              <span class="flex shrink-0 items-center gap-2 text-[11px] normal-case tracking-normal text-slate-500">
+                {sourceCountLabel}
+                <FiaqIcon name="i-lucide-chevron-down" class={`h-3.5 w-3.5 transition-transform ${showSources ? 'rotate-180' : ''}`} />
+              </span>
+            </Button>
+
+            {#if showSources}
+              <div id={`sources-${message.id}`} class="mt-2 grid gap-1.5 rounded-xl border border-slate-200 bg-white/80 p-2 shadow-sm">
+                {#each message.sources as source (source.id)}
+                  <SourceChip {source} />
+                {/each}
+              </div>
+            {/if}
           {/if}
         </div>
       {/if}
