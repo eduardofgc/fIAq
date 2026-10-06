@@ -33,8 +33,11 @@ type WaitUntilPlatform = {
 
 const RAG_RESULT_LIMIT = 3
 const RAG_CANDIDATE_LIMIT = 8
-const MAX_CONTEXT_CHARS_PER_RESULT = 700
-const MAX_CONTEXT_CHARS_TOTAL = 2200
+// Guias passo a passo passam de 3 mil caracteres; com um corte menor o modelo
+// só via a introdução e respondia "consulte a página" sem os passos. O teto
+// total é que limita: FAQs curtos à frente deixam espaço pro guia inteiro.
+const MAX_CONTEXT_CHARS_PER_RESULT = 3800
+const MAX_CONTEXT_CHARS_TOTAL = 7000
 const LOCAL_CONTEXT_MIN_SCORE = 0.52
 const CONTEXTUAL_SEARCH_MAX_CHARS = 700
 const MAX_HISTORY_MESSAGES = 12
@@ -54,6 +57,7 @@ Regras:
 * Não use marcadores de fonte no corpo, como [1], [2] ou [3]; as fontes aparecem automaticamente abaixo da resposta.
 * Use Markdown simples, sem blocos de código e sem emojis.
 * Em perguntas de escopo UnB, nunca use frases como "não sei", "não tenho informação" ou "não encontrei informação". Se a informação não estiver confirmada, dê a melhor orientação possível, indique o setor, sistema ou documento provável e deixe claro o próximo passo sem inventar fatos.
+* Quando o aluno perguntar como fazer algo e o <contexto> trouxer os passos, liste esses passos em lista numerada, com os detalhes concretos que aparecem lá (sistema, tipo de pedido, o que preencher, documentos). Não troque esses detalhes por "consulte a página X". Nunca crie passos, etapas, sistemas ou documentos que não estejam no contexto: se o contexto só disser onde fazer o pedido, diga isso de forma concreta (qual sistema ou página e qual tipo de pedido), sem inventar etapas.
 * Para dúvidas amplas de matrícula, explique o processo geral primeiro. Você pode dizer que calouros e veteranos podem ter orientações específicas, mas não peça esclarecimento como resposta principal.
 * Não afirme que matrícula de calouros é automática, nem descreva regra de calouros, se isso não estiver explicitamente confirmado no contexto.
 * Em assédio, discriminação, violência ou saúde mental, oriente a procurar a Ouvidoria e o CAEP.
@@ -75,7 +79,9 @@ function stripLinks(text: string): string {
     .replace(/<https?:\/\/[^>]+>/gi, '')
     .replace(/\bhttps?:\/\/\S+/gi, '')
     .replace(/\bwww\.\S+/gi, '')
-    .replace(/\b(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/\S*)?\b/gi, '')
+    // Domínio solto sai, mas e-mail fica inteiro: sem o lookaround, "saa@unb.br"
+    // virava "saa@" e o modelo respondia com o contato cortado.
+    .replace(/(?<![@\w.-])(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/\S*)?(?![\w@-])/gi, '')
     .replace(/[ \t]{2,}/g, ' ')
     .replace(/[ \t]+([.,;:!?])/g, '$1')
 }
@@ -132,16 +138,33 @@ function buildCompactContext(results: SearchResult[]): string {
 
 const STOPWORDS = new Set([
   'a', 'ao', 'aos', 'as', 'como', 'com', 'da', 'das', 'de', 'do', 'dos', 'e',
-  'em', 'eu', 'fazer', 'ha', 'isso', 'ja', 'la', 'lo', 'me', 'na', 'no', 'o',
-  'os', 'ou', 'para', 'posso', 'que', 'quero', 'sao', 'se', 'tu', 'um', 'uma',
-  'unb'
+  'em', 'essa', 'essas', 'esse', 'esses', 'esta', 'estas', 'este', 'estes',
+  'eu', 'faco', 'fazer', 'ha', 'isso', 'ja', 'la', 'lo', 'me', 'na', 'no', 'o',
+  'os', 'ou', 'para', 'por', 'posso', 'pra', 'pro', 'quais', 'qual', 'quando',
+  'que', 'quero', 'sao', 'se', 'sobre', 'tu', 'um', 'uma', 'unb'
 ])
 
+// Palavras que não dizem o assunto. As de "pedido de detalhe" vêm de
+// continuações ("quais são essas orientações detalhadas?") e, se contassem,
+// derrubavam a cobertura de um trecho que é exatamente sobre o assunto.
 const GENERIC_CONTEXT_TERMS = new Set([
   'aluno',
   'atendimento',
+  'detalhada',
+  'detalhadas',
+  'detalhado',
+  'detalhados',
+  'detalhes',
   'documento',
   'edital',
+  'etapas',
+  'informacoes',
+  'orientacoes',
+  'passo',
+  'passos',
+  'procedimento',
+  'procedimentos',
+  'prosseguimento',
   'funciona',
   'horario',
   'informacao',
@@ -180,9 +203,21 @@ const UNB_SCOPE_TERMS = [
   'coordenacao',
   'graduacao',
   'curriculo',
+  'curricular',
   'grade',
   'trancamento',
+  'trancar',
+  'tranco',
   'aproveitamento',
+  'auxilio',
+  'assistencia estudantil',
+  'declaracao',
+  'desligad',
+  'diploma',
+  'colacao',
+  'historico',
+  'mencao',
+  'reintegra',
   'equivalencia',
   'aproveitamento de estudos',
   'formatura',
@@ -306,14 +341,30 @@ function hasEnoughLocalContext(question: string, results: SearchResult[]): boole
 
   if (top.score >= 0.9 && coverage >= 0.5) return true
   if (top.score >= LOCAL_CONTEXT_MIN_SCORE && coverage >= 0.5) return true
+  // Pergunta de "como faço" com um guia passo a passo oficial em 1º lugar:
+  // a cobertura cai com verbo coloquial ("fui desligado, como volto?") que
+  // não aparece no guia, mas o guia é exatamente o que responde.
+  if (PROCEDURAL_QUESTION.test(normalizeText(question))
+    && PROCEDURAL_TITLE.test(normalizeText(top.titulo))
+    && coverage >= 0.33) return true
   if (top.score >= 0.45 && titleOverlap > 0 && coverage >= 0.4) return true
 
   return top.score >= 0.38 && coverage >= 0.67
 }
 
-function shouldUseWebFallback(question: string, results: SearchResult[]): boolean {
+// Pedido de continuação que cobra mais detalhe ("e como eu dou prosseguimento?",
+// "quais são essas orientações detalhadas?") indica que a resposta anterior,
+// montada com a base local, não bastou. Repetir os mesmos trechos não ajuda.
+function isDetailFollowUp(question: string): boolean {
+  if (!isLikelyFollowUp(question)) return false
+
+  return /\b(detalh\w*|passo a passo|passos|etapas|orientac\w*|procedimento\w*|prossegu\w*|como (eu )?(faco|fazer|solicito|solicitar|peco|pedir|dou|procedo|proceder))\b/
+    .test(normalizeText(question))
+}
+
+function shouldUseWebFallback(question: string, results: SearchResult[], detailFollowUp = false): boolean {
   return isUnbScopedQuestion(question)
-    && (isFreshnessSensitiveQuestion(question) || !hasEnoughLocalContext(question, results))
+    && (detailFollowUp || isFreshnessSensitiveQuestion(question) || !hasEnoughLocalContext(question, results))
 }
 
 function mergeSearchResults(groups: Array<SearchResult[] | null | undefined>): SearchResult[] {
@@ -327,10 +378,18 @@ function mergeSearchResults(groups: Array<SearchResult[] | null | undefined>): S
   return [...byId.values()]
 }
 
+// "como" + verbo na 1ª pessoa ou no infinitivo ("como tranco", "como migrar",
+// "como volto"), fora formas que não pedem procedimento ("como são", "como isso").
+const PROCEDURAL_QUESTION = /\b(como (eu )?(?!sao\b|isso\b|no\b|do\b)\w+(o|ar|er|ir)|passo a passo|procedimento|o que (eu )?preciso fazer)\b/
+const PROCEDURAL_TITLE = /\b(passo a passo|como solicitar|como fazer|como acessar|como usar|guia)\b/
+
 function rankContextResults(question: string, results: SearchResult[]): SearchResult[] {
   const distinctiveTerms = terms(question).filter(term => !GENERIC_CONTEXT_TERMS.has(term))
   const queryTerms = new Set(distinctiveTerms.length ? distinctiveTerms : terms(question))
   if (!queryTerms.size) return results
+
+  const normalizedQuestion = normalizeText(question)
+  const proceduralQuestion = PROCEDURAL_QUESTION.test(normalizedQuestion)
 
   return [...results]
     .map((result, index) => {
@@ -339,20 +398,29 @@ function rankContextResults(question: string, results: SearchResult[]): SearchRe
       const titleTerms = terms(result.titulo)
       const contentTerms = new Set(terms(result.conteudo).slice(0, 120))
       const titleOverlap = titleTerms.filter(term => queryTerms.has(term)).length
-      const contentOverlap = [...queryTerms]
-        .filter(term => contentTerms.has(term) || content.includes(term))
-        .length
+      // Substring só pra termo longo: "ru" ou "ti" aparecem dentro de
+      // "estrutura", "grupo", "partida"... e casariam com quase tudo.
+      const inContent = (term: string) => contentTerms.has(term)
+        || (term.length >= 4 && content.includes(term))
+      const contentOverlap = [...queryTerms].filter(inContent).length
       const missingTitleTerms = titleTerms.filter(term => !queryTerms.has(term)).length
       const totalOverlap = [...queryTerms]
-        .filter(term => titleTerms.includes(term) || contentTerms.has(term) || content.includes(term))
+        .filter(term => titleTerms.includes(term) || inContent(term))
         .length
       const coverage = totalOverlap / queryTerms.size
       const titleCoverage = titleOverlap / queryTerms.size
       const exactShortTitle = titleTerms.length > 0
         && titleTerms.length <= 3
         && titleTerms.every(term => queryTerms.has(term))
+      // Título genérico de 1 ou 2 palavras ("RU", "Estrutura Curricular") quase
+      // sempre aparece dentro da pergunta, sem que o trecho responda a ela.
+      // E a pergunta curta dentro de um título longo sobre outra coisa ("como
+      // faço matrícula" em "como faço matrícula em estágio obrigatório") também não.
       const exactQuestionTitle = title.length > 0
-        && (normalizeText(question).includes(title) || title.includes(normalizeText(question)))
+        && missingTitleTerms <= 1
+        && (title.includes(normalizedQuestion)
+          || (titleTerms.length >= 3 && normalizedQuestion.includes(title)))
+      const proceduralMatch = proceduralQuestion && PROCEDURAL_TITLE.test(title)
 
       const rank = Math.min(result.score, 1) * 0.32
         + coverage * 1.15
@@ -360,6 +428,7 @@ function rankContextResults(question: string, results: SearchResult[]): SearchRe
         + contentOverlap * 0.025
         + (exactShortTitle ? 0.18 : 0)
         + (exactQuestionTitle ? 0.3 : 0)
+        + (proceduralMatch ? 0.35 : 0)
         // Termo explícito de confiança: sem isso, o clip em Math.min(score, 1)
         // engole o boost de nivelConfianca já embutido no score bruto sempre
         // que um resultado institucional já vem com score alto por keyword
@@ -503,7 +572,8 @@ export const POST: RequestHandler = async (event) => {
       kind: 'rag'
     }))
     const webDomains = getFirecrawlIncludeDomains()
-    const needsWebFallback = shouldUseWebFallback(searchQuestion, results)
+    const detailFollowUp = isDetailFollowUp(question)
+    const needsWebFallback = shouldUseWebFallback(searchQuestion, results, detailFollowUp)
 
     console.log(JSON.stringify({
       level: 'info',
@@ -516,6 +586,7 @@ export const POST: RequestHandler = async (event) => {
       localContextEnough,
       scopedToUnb,
       freshnessSensitive,
+      detailFollowUp,
       needsWebFallback,
       topResult: results[0]
         ? { id: results[0].id, score: Number(results[0].score.toFixed(3)) }
@@ -560,21 +631,30 @@ export const POST: RequestHandler = async (event) => {
         const webSources = await searchFirecrawl(searchQuestion, { signal: sse.signal })
 
         if (webSources.length) {
-          context = buildFirecrawlContext(webSources)
-          answerSources = webSources.map(source => ({
+          const webAnswerSources: ResponseSource[] = webSources.map(source => ({
             id: source.id,
             titulo: source.titulo,
             url: source.url,
             kind: source.kind,
             description: source.description
           }))
+          // Base local boa + web acionada só por pedido de detalhe ou por ser
+          // assunto atual: soma as duas, senão os passos que já vieram do banco
+          // somem da resposta.
+          if (localContextEnough) {
+            context = `${context}\n\n${buildFirecrawlContext(webSources)}`
+            answerSources = [...answerSources, ...webAnswerSources]
+          } else {
+            context = buildFirecrawlContext(webSources)
+            answerSources = webAnswerSources
+          }
           await sendActivity(sse, {
             id: 'web-search',
             kind: 'web',
             status: 'done',
             label: 'Fontes web selecionadas',
-            detail: `${answerSources.length} fonte(s) confiável(is) encontradas para responder.`,
-            sources: activitySources(answerSources),
+            detail: `${webAnswerSources.length} fonte(s) confiável(is) encontradas para responder.`,
+            sources: activitySources(webAnswerSources),
             domains: webDomains
           })
           await sendEvent(sse, {

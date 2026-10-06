@@ -64,6 +64,8 @@ function normalizeText(text: string): string {
     .trim()
 }
 
+const MIN_SUBSTRING_TERM_LENGTH = 4
+
 function lexicalTerms(text: string): string[] {
   return normalizeText(text)
     .split(/\s+/)
@@ -171,7 +173,11 @@ function rankTextRows(query: string, rows: RagTextRow[], k: number): SearchResul
       for (const term of queryTerms) {
         let termMatched = false
 
-        if (titleTerms.has(term) || title.includes(term)) {
+        // Substring só pra termo longo: "ru" ou "ti" aparecem dentro de
+        // "estrutura", "grupo", "partida"... e casariam com quase tudo.
+        const substringOk = term.length >= MIN_SUBSTRING_TERM_LENGTH
+
+        if (titleTerms.has(term) || (substringOk && title.includes(term))) {
           score += 0.28
           termMatched = true
         }
@@ -179,7 +185,7 @@ function rankTextRows(query: string, rows: RagTextRow[], k: number): SearchResul
         if (contentTerms.has(term)) {
           score += 0.09
           termMatched = true
-        } else if (content.includes(term)) {
+        } else if (substringOk && content.includes(term)) {
           score += 0.035
           termMatched = true
         }

@@ -38,6 +38,7 @@ export const OFICIAL_HOSTS = new Set([
   'cic.unb.br',
   'exatas.unb.br',
   'www.exatas.unb.br',
+  'fe.unb.br',
   'gov.br',
   'www.gov.br'
 ])

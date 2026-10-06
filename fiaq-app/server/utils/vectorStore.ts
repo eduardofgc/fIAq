@@ -46,6 +46,10 @@ function normalizeText(text: string): string {
     .trim()
 }
 
+// Substring só pra termo longo: "ru" ou "ti" aparecem dentro de "estrutura",
+// "grupo", "partida"... e casariam com quase tudo.
+const MIN_SUBSTRING_TERM_LENGTH = 4
+
 function lexicalTerms(text: string): string[] {
   return normalizeText(text)
     .split(/\s+/)
@@ -121,7 +125,7 @@ export function keywordTopK(query: string, k = 4): SearchResult[] {
         if (contentTerms.has(term)) {
           score += 0.09
           termMatched = true
-        } else if (content.includes(term)) {
+        } else if (term.length >= MIN_SUBSTRING_TERM_LENGTH && content.includes(term)) {
           score += 0.035
           termMatched = true
         }

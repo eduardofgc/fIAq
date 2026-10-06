@@ -51,7 +51,12 @@ export const messages = writable<Message[]>([])
 export const loading = writable(false)
 
 function normalizeSource(source: Partial<Source>): Source | null {
-  const titulo = String(source.titulo || '').trim()
+  // Títulos de páginas raspadas trazem travessão (às vezes como entidade HTML),
+  // e a interface não usa travessão.
+  const titulo = String(source.titulo || '')
+    .replace(/&#821[12];|&[nm]dash;/g, '-')
+    .replace(/\s*[–—]\s*/g, ' - ')
+    .trim()
   const url = String(source.url || '').trim()
   if (!titulo && !url) return null
 
