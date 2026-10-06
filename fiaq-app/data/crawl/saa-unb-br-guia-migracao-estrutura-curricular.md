@@ -10,11 +10,13 @@ Como migrar de estrutura curricular na UnB (mudança de currículo): passo a pas
 A migração de estrutura curricular é pedida pelo peticionamento eletrônico do SEI-UnB. No SEI, esse pedido se chama "Graduação: Mudança de currículo", modalidade destinada ao aluno ativo de graduação para solicitar a alteração para a estrutura curricular mais recente (posterior) àquela na qual está vinculado. Qualquer discente pode pedir a migração para o currículo mais recente vigente, a qualquer momento, mesmo que já tenha migrado antes.
 
 Passo a passo para solicitar:
-1. Acesse o SEI-UnB como usuário externo. No primeiro acesso, o estudante normalmente não precisa criar cadastro: na tela de login do usuário externo do SEI, use "Esqueci minha senha" e informe o e-mail cadastrado no seu registro acadêmico (o mesmo do SIGAA). A senha chega nesse e-mail.
+1. Acesse o Portal do Aluno (aluno.unb.br) e entre no Peticionamento Eletrônico (SEI). No primeiro acesso, o estudante normalmente não precisa criar cadastro: clique em "Esqueci minha senha" e informe o e-mail cadastrado no seu registro acadêmico (o mesmo do SIGAA). A senha chega nesse e-mail.
 2. Faça login com seu e-mail e a senha recebida.
-3. Entre na opção de Peticionamento Eletrônico e escolha o tipo de processo "Graduação: Mudança de currículo" (a lista de tipos fica na página de peticionamento eletrônico da SAA, saa.unb.br/peticionamento-eletronico-sei-unb).
-4. Preencha o pedido informando que deseja migrar para a estrutura curricular mais recente do seu curso. Se for a migração para a 1741/3 (CIC), deixe claro no pedido que você está informado do contexto (FAQ do CIC e vídeo explicativo), como o próprio FAQ orienta.
-5. Envie o peticionamento e acompanhe o andamento pelo login de usuário externo do SEI ("SEI Acesso Externo").
+3. Clique em Peticionamento e depois em Processo Novo. Leia as "Orientações Gerais" e escolha o tipo de processo "Graduação: Mudança de currículo".
+4. No campo Especificação, escreva Curso / Grau / Turno (exemplo: CIÊNCIA DA COMPUTAÇÃO / BACHARELADO / DIURNO).
+5. Preencha o pedido informando que deseja migrar para a estrutura curricular mais recente do seu curso. Se for a migração para a 1741/3 (CIC), deixe claro no pedido que você está informado do contexto (FAQ do CIC e vídeo explicativo), como o próprio FAQ orienta.
+6. Clique em Salvar e assine (peticionar): em Usuário Externo, seu nome; em Cargo/Função, "Aluno(a) da Universidade de Brasília"; em Senha, a senha do SEI. Clique em Assinar.
+7. Guarde o número do processo e acompanhe o andamento pelo mesmo login do SEI. O recibo fica em "Recibos Eletrônicos de Protocolo".
 
 Se o login no SEI não funcionar pelo "Esqueci minha senha", procure a secretaria do seu curso ou a SAA para confirmar qual e-mail está cadastrado.
 

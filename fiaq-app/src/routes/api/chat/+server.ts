@@ -34,9 +34,10 @@ type WaitUntilPlatform = {
 const RAG_RESULT_LIMIT = 3
 const RAG_CANDIDATE_LIMIT = 8
 // Guias passo a passo passam de 3 mil caracteres; com um corte menor o modelo
-// só via a introdução e respondia "consulte a página" sem os passos.
-const MAX_CONTEXT_CHARS_PER_RESULT = 2400
-const MAX_CONTEXT_CHARS_TOTAL = 5000
+// só via a introdução e respondia "consulte a página" sem os passos. O teto
+// total é que limita: FAQs curtos à frente deixam espaço pro guia inteiro.
+const MAX_CONTEXT_CHARS_PER_RESULT = 3800
+const MAX_CONTEXT_CHARS_TOTAL = 7000
 const LOCAL_CONTEXT_MIN_SCORE = 0.52
 const CONTEXTUAL_SEARCH_MAX_CHARS = 700
 const MAX_HISTORY_MESSAGES = 12
@@ -78,7 +79,9 @@ function stripLinks(text: string): string {
     .replace(/<https?:\/\/[^>]+>/gi, '')
     .replace(/\bhttps?:\/\/\S+/gi, '')
     .replace(/\bwww\.\S+/gi, '')
-    .replace(/\b(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/\S*)?\b/gi, '')
+    // Domínio solto sai, mas e-mail fica inteiro: sem o lookaround, "saa@unb.br"
+    // virava "saa@" e o modelo respondia com o contato cortado.
+    .replace(/(?<![@\w.-])(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/\S*)?(?![\w@-])/gi, '')
     .replace(/[ \t]{2,}/g, ' ')
     .replace(/[ \t]+([.,;:!?])/g, '$1')
 }
@@ -203,7 +206,18 @@ const UNB_SCOPE_TERMS = [
   'curricular',
   'grade',
   'trancamento',
+  'trancar',
+  'tranco',
   'aproveitamento',
+  'auxilio',
+  'assistencia estudantil',
+  'declaracao',
+  'desligad',
+  'diploma',
+  'colacao',
+  'historico',
+  'mencao',
+  'reintegra',
   'equivalencia',
   'aproveitamento de estudos',
   'formatura',
@@ -327,6 +341,12 @@ function hasEnoughLocalContext(question: string, results: SearchResult[]): boole
 
   if (top.score >= 0.9 && coverage >= 0.5) return true
   if (top.score >= LOCAL_CONTEXT_MIN_SCORE && coverage >= 0.5) return true
+  // Pergunta de "como faço" com um guia passo a passo oficial em 1º lugar:
+  // a cobertura cai com verbo coloquial ("fui desligado, como volto?") que
+  // não aparece no guia, mas o guia é exatamente o que responde.
+  if (PROCEDURAL_QUESTION.test(normalizeText(question))
+    && PROCEDURAL_TITLE.test(normalizeText(top.titulo))
+    && coverage >= 0.33) return true
   if (top.score >= 0.45 && titleOverlap > 0 && coverage >= 0.4) return true
 
   return top.score >= 0.38 && coverage >= 0.67
@@ -358,7 +378,9 @@ function mergeSearchResults(groups: Array<SearchResult[] | null | undefined>): S
   return [...byId.values()]
 }
 
-const PROCEDURAL_QUESTION = /\b(como (eu )?(faco|fazer|faz|solicito|solicitar|peco|pedir|consigo|acesso|acessar)|passo a passo|procedimento|o que (eu )?preciso fazer)\b/
+// "como" + verbo na 1ª pessoa ou no infinitivo ("como tranco", "como migrar",
+// "como volto"), fora formas que não pedem procedimento ("como são", "como isso").
+const PROCEDURAL_QUESTION = /\b(como (eu )?(?!sao\b|isso\b|no\b|do\b)\w+(o|ar|er|ir)|passo a passo|procedimento|o que (eu )?preciso fazer)\b/
 const PROCEDURAL_TITLE = /\b(passo a passo|como solicitar|como fazer|como acessar|como usar|guia)\b/
 
 function rankContextResults(question: string, results: SearchResult[]): SearchResult[] {
@@ -392,7 +414,10 @@ function rankContextResults(question: string, results: SearchResult[]): SearchRe
         && titleTerms.every(term => queryTerms.has(term))
       // Título genérico de 1 ou 2 palavras ("RU", "Estrutura Curricular") quase
       // sempre aparece dentro da pergunta, sem que o trecho responda a ela.
+      // E a pergunta curta dentro de um título longo sobre outra coisa ("como
+      // faço matrícula" em "como faço matrícula em estágio obrigatório") também não.
       const exactQuestionTitle = title.length > 0
+        && missingTitleTerms <= 1
         && (title.includes(normalizedQuestion)
           || (titleTerms.length >= 3 && normalizedQuestion.includes(title)))
       const proceduralMatch = proceduralQuestion && PROCEDURAL_TITLE.test(title)
