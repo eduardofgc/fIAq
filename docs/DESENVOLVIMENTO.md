@@ -229,7 +229,9 @@ Rode da pasta `fiaq-app/` (precisa de `OPENROUTER_API_KEY` e
 node scripts/add-crawl-file.mjs <slug>          # aceita vários slugs
 # 3. se mudou a lista OFICIAL_HOSTS, reclassifique o índice (sem re-embedar)
 node scripts/tag-trust-level.mjs
-# 4. commite data/crawl/<slug>.md junto com server/assets/rag-index.json
+# 4. adicione um caso em scripts/eval-rag-casos.json e confira o ranking
+pnpm eval:rag
+# 5. commite data/crawl/<slug>.md junto com server/assets/rag-index.json
 ```
 
 Depois do deploy, rode o seed em produção (ver
@@ -274,6 +276,34 @@ faço..." recebam o procedimento completo. Ao escrever um:
 - E-mails de contato podem ficar no texto; URLs e domínios soltos são removidos
   do contexto antes de ir para o modelo.
 
+### Avaliar a busca e o ranking
+
+```bash
+pnpm eval:rag             # resumo e falhas
+pnpm eval:rag --verbose   # top 3 de todos os casos
+```
+
+O script roda a mesma busca e o mesmo ranking do `/api/chat`
+(`server/utils/chatRetrieval.ts`) sobre o `rag-index.json`, sem banco e sem
+chamar o modelo de chat. Cada caso de `scripts/eval-rag-casos.json` tem:
+
+```json
+{ "pergunta": "como tranco uma disciplina?",
+  "esperado": ["crawl-saa-unb-br-guia-trancamento-sigaa"],
+  "web": false }
+```
+
+- `esperado`: ids de documento (sem o sufixo `-1`, `-2` dos trechos) que
+  respondem à pergunta; basta um deles entre os 3 trechos usados pelo chat.
+- `web` (opcional): se o chat deve ou não ir para a pesquisa web.
+- `historico` (opcional): perguntas anteriores, para testar continuações.
+
+A saída mostra a posição do documento esperado e a decisão web de cada caso, e
+o comando termina com erro se algum caso falhar. Os embeddings das perguntas
+ficam em `scripts/eval-rag-cache.json` (commitado); só perguntas novas gastam
+cota. O `esperado` diz qual documento **deveria** responder: se um caso falhar,
+corrija o conteúdo ou o ranking, não o caso.
+
 ### Seed completo
 
 O seed lê tudo de `data/` e grava no banco. Use uma connection string com
@@ -309,4 +339,5 @@ caminho mais fiel ao deploy continua sendo `pnpm dev` com a URI do Supabase.
 | Chat retorna `LLM_UNAVAILABLE` | OpenRouter indisponível, chave inválida ou cota diária esgotada | Confira `OPENROUTER_API_KEY`; erro `429 free-models-per-day` é cota (ver `DEPLOY.md`) |
 | Embedding falha com `429 free-models-per-min` | Mais de 20 requisições por minuto | O seed espera e tenta de novo sozinho; com o `add-crawl-file.mjs`, espere um minuto e rode de novo |
 | RAG carrega fallback JSON | Banco/RAG indisponível ou sem seed | Rode o healthcheck e revise `pnpm seed:knowledge` |
-| Pergunta coberta pela base cai na pesquisa web | Trecho certo não ficou em 1º ou cobertura de termos baixa | Veja o log `chat_research_decision` (`topResult`, `localContextEnough`) e o título do documento |
+| Pergunta coberta pela base cai na pesquisa web | Trecho certo não ficou em 1º ou cobertura de termos baixa | Adicione a pergunta em `scripts/eval-rag-casos.json` e rode `pnpm eval:rag --verbose`; no servidor, veja o log `chat_research_decision` |
+| `pnpm lint` quebra com `eslint-typegen ... .nuxt/eslint.config.mjs` | Pasta `.nuxt/` da versão Nuxt sendo lida | Confira se `.nuxt/**` está em `ignores` no `eslint.config.mjs` |

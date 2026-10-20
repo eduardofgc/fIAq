@@ -1,0 +1,43 @@
+[
+  { "pergunta": "como faço matrícula?", "esperado": ["crawl-saa-unb-br-guia-matricula-online-passo-a-passo"], "web": false },
+  { "pergunta": "como faço matrícula extraordinária?", "esperado": ["crawl-saa-unb-br-guia-matricula-extraordinaria"], "web": false },
+  { "pergunta": "não consegui vaga na matrícula, o que eu faço?", "esperado": ["nao-consegui-vaga-na-matricula-nem-na-rematricula-e-agora", "crawl-saa-unb-br-guia-matricula-extraordinaria"], "web": false },
+  { "pergunta": "como tranco uma disciplina?", "esperado": ["crawl-saa-unb-br-guia-trancamento-sigaa"], "web": false },
+  { "pergunta": "como tranco o semestre?", "esperado": ["crawl-saa-unb-br-guia-trancamento-sigaa"], "web": false },
+  { "pergunta": "como pedir trancamento por motivo de saúde?", "esperado": ["crawl-saa-unb-br-guia-trancamento-justificado"], "web": false },
+  { "pergunta": "como emitir histórico escolar?", "esperado": ["crawl-portalsig-unb-br-guia-emitir-documentos"], "web": false },
+  { "pergunta": "como pego a declaração de vínculo?", "esperado": ["crawl-portalsig-unb-br-guia-emitir-documentos"], "web": false },
+  { "pergunta": "como pedir auxílio estudantil?", "esperado": ["crawl-dds-dac-unb-br-guia-avaliacao-socioeconomica"], "web": false },
+  { "pergunta": "como faço aproveitamento de disciplinas de outra faculdade?", "esperado": ["crawl-saa-unb-br-guia-aproveitamento-de-estudos"], "web": false },
+  { "pergunta": "como pedir revisão de menção?", "esperado": ["crawl-saa-unb-br-guia-revisao-de-mencao", "revisao-de-mencao"], "web": false },
+  { "pergunta": "como faço para começar um estágio?", "esperado": ["crawl-deg-unb-br-guia-estagio"], "web": false },
+  { "pergunta": "como pego meu diploma?", "esperado": ["crawl-saa-unb-br-guia-diploma-colacao"], "web": false },
+  { "pergunta": "como pedir exercícios domiciliares?", "esperado": ["crawl-unb-br-guia-exercicios-domiciliares"], "web": false },
+  { "pergunta": "fui desligado, como volto pra UnB?", "esperado": ["crawl-deg-unb-br-guia-reintegracao-desligamento"], "web": false },
+  { "pergunta": "como solicitar desligamento voluntário?", "esperado": ["crawl-deg-unb-br-guia-reintegracao-desligamento", "como-solicitar-o-desligamento-voluntario"], "web": false },
+  { "pergunta": "como migrar de estrutura curricular?", "esperado": ["crawl-saa-unb-br-guia-migracao-estrutura-curricular"], "web": false },
+  { "pergunta": "como abrir um processo no SEI?", "esperado": ["crawl-portalsei-unb-br-guia-peticionamento-eletronico"], "web": false },
+
+  { "pergunta": "quanto é o RU?", "esperado": ["crawl-ru-unb-br-precos-e-grupos"], "web": false },
+  { "pergunta": "como conectar no wifi da UnB?", "esperado": ["crawl-sti-unb-br-wireless-eduroam"] },
+  { "pergunta": "esqueci minha senha do SIGAA", "esperado": ["crawl-sti-unb-br-senha-unica-e-recuperacao"] },
+  { "pergunta": "como pegar livro emprestado na biblioteca?", "esperado": ["crawl-bce-unb-br-emprestimos"] },
+  { "pergunta": "como emitir a carteirinha de estudante?", "esperado": ["crawl-saa-unb-br-carteirinha-estudantil-digital"] },
+  { "pergunta": "como usar nome social na UnB?", "esperado": ["crawl-portalsig-unb-br-nome-social"] },
+  { "pergunta": "como denunciar assédio?", "esperado": ["crawl-sdh-unb-br-fluxo-denuncia-assedio", "crawl-ouvidoria-unb-br-como-registrar-manifestacao", "crawl-sdh-unb-br-unb-sem-assedio"] },
+
+  { "pergunta": "como encontro um orientador de projeto final?", "esperado": ["como-encontro-um-orientador-de-projeto-final"], "web": false },
+  { "pergunta": "sou obrigado a fazer extensão?", "esperado": ["sou-obrigado-a-fazer-extensao"], "web": false },
+  { "pergunta": "o que é uma cadeia de seletividade?", "esperado": ["o-que-e-uma-cadeia-de-seletividade"], "web": false },
+  { "pergunta": "quem é o coordenador do curso?", "esperado": ["quem-esta-atuando-como-coordenador-e-consigo-contato"] },
+  { "pergunta": "o que é empresa júnior?", "esperado": ["empresas-juniores", "crawl-www-unb-br-estudante-cultura-e-sociedade-empresa-junior"] },
+
+  { "pergunta": "quais as últimas notícias da UnB?", "esperado": [], "web": true },
+  { "pergunta": "tem greve na UnB agora?", "esperado": [], "web": true },
+  {
+    "historico": ["como faço pra migrar de estrutura curricular?"],
+    "pergunta": "quais são essas orientações detalhadas?",
+    "esperado": ["crawl-saa-unb-br-guia-migracao-estrutura-curricular"],
+    "web": true
+  }
+]

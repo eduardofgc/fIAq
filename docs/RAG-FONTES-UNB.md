@@ -53,11 +53,15 @@ Pesquisa em tempo real aumenta latencia, custo e risco de resposta com fontes ru
 A busca ja e hibrida, mas a parte textual roda no app, nao no banco:
 
 1. busca vetorial (`buscar_rag_chunks`, cosine distance com `pgvector`, com boost por origem e por nivel de confianca) e busca textual (termos da pergunta contra titulo e conteudo) rodam em paralelo;
-2. os resultados sao reordenados em `src/routes/api/chat/+server.ts` (`rankContextResults`) por cobertura dos termos da pergunta, titulo, confianca e, em perguntas de "como faco", prioridade a guias passo a passo;
+2. os resultados sao reordenados em `server/utils/chatRetrieval.ts` (`rankContextResults`) por cobertura dos termos da pergunta, titulo, confianca e, em perguntas de "como faco", prioridade a guias passo a passo;
 3. `hasEnoughLocalContext` decide se os 3 melhores trechos bastam ou se a pergunta vai para a pesquisa web.
+
+## Avaliacao
+
+`pnpm eval:rag` roda esse mesmo codigo sobre o `rag-index.json` com as perguntas de `fiaq-app/scripts/eval-rag-casos.json` e informa, para cada uma, se o documento esperado ficou entre os 3 trechos usados e se a decisao de pesquisa web foi a esperada. Ao adicionar um guia ou mexer no ranking, rode antes e depois; ao cobrir um assunto novo, adicione um caso.
 
 ## Proximos passos possiveis
 
 - mover a busca textual para o banco com indice full-text em portugues (`tsvector` + `ts_rank`), que tambem resolveria variacoes de verbo ("tranco"/"trancar") hoje tratadas por heuristica;
-- um conjunto fixo de perguntas de avaliacao com o documento esperado, rodado antes de cada deploy, para pegar regressoes de ranking;
+- avaliar tambem as respostas do modelo (nao so a busca), por exemplo checando se os passos do guia aparecem na resposta;
 - usar checksum/freshness para recrawlear apenas paginas alteradas e agendar o crawl.

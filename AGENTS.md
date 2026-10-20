@@ -107,6 +107,7 @@ pnpm fetch:links
 pnpm seed:knowledge
 pnpm index:rag
 pnpm test:openrouter
+pnpm eval:rag
 ```
 
 Quando precisar rodar diretamente no app:
@@ -134,12 +135,19 @@ curl -sS -o /tmp/fiaq-faq.json \
   https://fiaq.porto.ooo/api/faq
 ```
 
-Para mudancas de ranking/RAG, teste tambem perguntas de referencia com o app
-local (sem `DATABASE_URL` ele usa o `rag-index.json`): "quanto e o RU?", "como
-faco matricula?", "como tranco uma disciplina?", "como pedir auxilio
-estudantil?", "fui desligado, como volto pra UnB?". Cada uma deve trazer o
-documento certo entre os 3 primeiros (log `chat_research_decision`). Ajustes de
-ranking ja quebraram perguntas que funcionavam mais de uma vez.
+Para mudancas de ranking, busca ou conteudo do RAG, rode tambem:
+
+```bash
+pnpm eval:rag            # --verbose mostra o top 3 de todos os casos
+```
+
+Ele roda o mesmo codigo da rota (`server/utils/chatRetrieval.ts`) sobre o
+`rag-index.json` com as perguntas de `fiaq-app/scripts/eval-rag-casos.json` e
+falha (exit 1) se o documento esperado sair do top 3 ou se a decisao de
+pesquisa web mudar. Os embeddings das perguntas ficam em cache
+(`scripts/eval-rag-cache.json`), entao so pergunta nova gasta cota. Ajustes de
+ranking ja quebraram perguntas que funcionavam mais de uma vez; nao ajuste o
+`esperado` de um caso so para o teste passar.
 
 Resposta esperada do healthcheck:
 
@@ -249,8 +257,10 @@ Fluxo:
    "Fontes verificadas".
 7. Registra pergunta anonima no banco depois da resposta.
 
-As heuristicas de termos ficam em `src/routes/api/chat/+server.ts` (ranking e
-suficiencia), `server/repositorios/rag.ts` (busca textual no banco) e
+A busca, o ranking e a decisao de suficiencia ficam em
+`server/utils/chatRetrieval.ts` (`searchRag`, `selectLocalContext`), fora da
+rota, para o `pnpm eval:rag` usar o mesmo codigo. As heuristicas de termos ficam
+nesse arquivo, em `server/repositorios/rag.ts` (busca textual no banco) e
 `server/utils/vectorStore.ts` (busca no JSON). Cada um tem sua lista de
 stopwords: ao mudar uma, avalie as outras (a do chat tem palavras extras de
 pergunta, como "pra" e "faco", de proposito). Termos de 2 letras (ex.: "RU")
@@ -351,6 +361,8 @@ Principais pontos ja aplicados:
 ## Arquivos de backend que costumam ser tocados
 
 - `fiaq-app/src/routes/api/chat/+server.ts`: chat RAG + fallback automatico web.
+- `fiaq-app/server/utils/chatRetrieval.ts`: busca, ranking e decisao de contexto
+  do chat (usado tambem pelo `pnpm eval:rag`).
 - `fiaq-app/src/routes/api/chat/web/+server.ts`: complemento por feedback negativo.
 - `fiaq-app/src/routes/api/chat/feedback/+server.ts`: feedback e candidatas.
 - `fiaq-app/src/routes/api/admin/**/*.ts`: admin e convites.
