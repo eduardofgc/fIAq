@@ -236,6 +236,7 @@ erDiagram
 | 2026-06 | RAG migrado para `pgvector` | Organiza todo o conhecimento no banco, permite seed idempotente e deixa o JSON apenas como fallback. |
 | 2026-06 | Métricas mantêm `embedding JSONB` | A agregação anônima ainda tem baixo volume; evita complexidade extra fora do caminho crítico do RAG. |
 | 2026-09 | `nivel_confianca` adicionado ao RAG | `origem` (faq/pdf/crawl) não distinguia autoridade normativa — uma página de empresa júnior competia de igual pra igual com a SAA/DEG na busca. Separa "como entrou no sistema" de "quanto é confiável". |
+| 2026-09 | Banco de produção movido para Supabase self-hosted no Coolify | O Supabase gerenciado do plano gratuito pausa por inatividade. O schema foi reaplicado do zero na ordem de `SETUP.md` e o conhecimento repopulado pelo seed. Ver `docs/DEPLOY.md`. |
 
 > **Autores/Decisões originais:** Gustavo Pavanelli e Lucas Centurion
 >
