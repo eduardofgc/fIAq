@@ -12,14 +12,25 @@
 | `02_perguntas_tabelas.sql` | Tabelas de análise (pergunta_registrada, ocorrencia_pergunta) | 2º |
 | `04_rag_pgvector.sql` | Extensão pgvector, tabelas RAG e função de busca | 3º |
 | `05_supabase_rag_search_hardening.sql` | Hardening idempotente da função RAG | 4º |
-| `03_supabase_app_role.sql` | Role limitada, grants e RLS | 5º |
-| `07_admin_rag_review.sql` | Admin, fila de curadoria e aprovação para RAG | 6º |
-| `08_admin_curadoria_realtime.sql` | Publicação Realtime segura da fila de curadoria | 7º |
+| `06_avaliacao_resposta.sql` | Feedback anônimo das respostas (avaliacao_resposta) | 5º |
+| `03_supabase_app_role.sql` | Role limitada `fiaq_app`, grants e RLS | 6º |
+| `07_admin_rag_review.sql` | Admin, fila de curadoria e aprovação para RAG | 7º |
+| `08_admin_curadoria_realtime.sql` | Publicação Realtime segura da fila de curadoria (**só Supabase**) | 8º |
+| `09_rag_nivel_confianca.sql` | Coluna `nivel_confianca` (oficial/institucional) e nova `buscar_rag_chunks` | 9º |
 
-`02_perguntas_tabelas.sql` e `04_rag_pgvector.sql` dependem de `faq_entrada`.
-Os scripts de role/RLS/admin devem rodar depois das tabelas e funções que eles
-protegem. O `08_` pressupõe Supabase Realtime disponível e adiciona apenas
-`web_resposta_candidata` à publicação `supabase_realtime`.
+A ordem difere da numeração dos arquivos: `02_` e `04_` dependem de
+`faq_entrada`; o `03_` concede permissões em tabelas do `04_` e do `06_`, então
+precisa rodar depois deles; `07_` e `09_` vêm depois da role existir. O `08_`
+usa `auth.jwt()`, as roles `anon`/`authenticated` e a publicação
+`supabase_realtime`, que só existem no Supabase: **pule o `08_` no Postgres
+local**.
+
+Os scripts podem ser reaplicados, com uma exceção: depois que o `09_` rodou,
+reaplicar o `04_` ou o `05_` falha com `cannot change return type of existing
+function` (eles recriam a versão antiga de `buscar_rag_chunks`). É esperado e
+inofensivo: a versão do `09_` continua valendo.
+
+Essa sequência foi validada aplicando tudo num `pgvector/pgvector:pg16` vazio.
 
 ## Variáveis de ambiente
 
@@ -104,12 +115,14 @@ Execute os comandos abaixo a partir da pasta `db/` do repositório,
 #### Linux/Mac
 
 ```bash
-docker exec -i fiaq-postgres psql -U fiaq -d fiaq < 01_faq_tabelas.sql
-docker exec -i fiaq-postgres psql -U fiaq -d fiaq < 02_perguntas_tabelas.sql
-docker exec -i fiaq-postgres psql -U fiaq -d fiaq < 04_rag_pgvector.sql
-docker exec -i fiaq-postgres psql -U fiaq -d fiaq < 05_supabase_rag_search_hardening.sql
-docker exec -i fiaq-postgres psql -U fiaq -d fiaq < 03_supabase_app_role.sql
+for f in 01_faq_tabelas 02_perguntas_tabelas 04_rag_pgvector \
+         05_supabase_rag_search_hardening 06_avaliacao_resposta \
+         03_supabase_app_role 07_admin_rag_review 09_rag_nivel_confianca; do
+  docker exec -i fiaq-postgres psql -U fiaq -d fiaq -v ON_ERROR_STOP=1 < $f.sql
+done
 ```
+
+O `08_admin_curadoria_realtime.sql` fica de fora: ele depende do Supabase.
 
 #### Windows (PowerShell)
 
@@ -117,11 +130,11 @@ O operador `<` no PowerShell pode causar problemas de encoding (UTF-16).
 Use `Get-Content` como alternativa segura:
 
 ```powershell
-Get-Content 01_faq_tabelas.sql | docker exec -i fiaq-postgres psql -U fiaq -d fiaq
-Get-Content 02_perguntas_tabelas.sql | docker exec -i fiaq-postgres psql -U fiaq -d fiaq
-Get-Content 04_rag_pgvector.sql | docker exec -i fiaq-postgres psql -U fiaq -d fiaq
-Get-Content 05_supabase_rag_search_hardening.sql | docker exec -i fiaq-postgres psql -U fiaq -d fiaq
-Get-Content 03_supabase_app_role.sql | docker exec -i fiaq-postgres psql -U fiaq -d fiaq
+foreach ($f in '01_faq_tabelas','02_perguntas_tabelas','04_rag_pgvector',
+               '05_supabase_rag_search_hardening','06_avaliacao_resposta',
+               '03_supabase_app_role','07_admin_rag_review','09_rag_nivel_confianca') {
+  Get-Content "$f.sql" | docker exec -i fiaq-postgres psql -U fiaq -d fiaq -v ON_ERROR_STOP=1
+}
 ```
 
 ---
@@ -134,18 +147,21 @@ Igual nos dois sistemas:
 docker exec -it fiaq-postgres psql -U fiaq -d fiaq -c "\dt"
 ```
 
-Saída esperada — 6 tabelas:
+Saída esperada, com 9 tabelas:
 
 ```
-              List of relations
- Schema |         Name          | Type  | Owner
---------+-----------------------+-------+-------
- public | faq_categoria         | table | fiaq
- public | faq_entrada           | table | fiaq
- public | ocorrencia_pergunta   | table | fiaq
- public | pergunta_registrada   | table | fiaq
- public | rag_chunk             | table | fiaq
- public | rag_documento         | table | fiaq
+                List of relations
+ Schema |          Name          | Type  | Owner
+--------+------------------------+-------+-------
+ public | admin_usuario          | table | fiaq
+ public | avaliacao_resposta     | table | fiaq
+ public | faq_categoria          | table | fiaq
+ public | faq_entrada            | table | fiaq
+ public | ocorrencia_pergunta    | table | fiaq
+ public | pergunta_registrada    | table | fiaq
+ public | rag_chunk              | table | fiaq
+ public | rag_documento          | table | fiaq
+ public | web_resposta_candidata | table | fiaq
 ```
 
 Para popular FAQ e RAG localmente:
@@ -222,18 +238,21 @@ Use apenas quando quiser recomeçar do zero.
 
 ## Aplicando os SQLs em outros ambientes
 
-> Esta seção é para **CI/CD, deploys em produção ou conexões diretas com bancos
-> gerenciados** (Neon, Supabase, Railway, etc.). Para desenvolvimento local com
-> Docker, use os comandos do Passo 3 da seção anterior.
+> Esta seção é para **conexões diretas com bancos gerenciados** (Supabase,
+> Neon, Railway etc.), quando o `psql` da sua máquina alcança o banco. Para o
+> Supabase self-hosted no Coolify (produção atual), o banco não fica exposto:
+> aplique pelo terminal do container, como descrito em
+> [`docs/DEPLOY.md`](../docs/DEPLOY.md#2-aplicar-o-schema).
 
 Requer o cliente `psql` instalado na máquina. Execute a partir da pasta `db/`:
 
 ```bash
-psql $DATABASE_URL -f 01_faq_tabelas.sql
-psql $DATABASE_URL -f 02_perguntas_tabelas.sql
-psql $DATABASE_URL -f 04_rag_pgvector.sql
-psql $DATABASE_URL -f 03_supabase_app_role.sql
+for f in 01_faq_tabelas 02_perguntas_tabelas 04_rag_pgvector \
+         05_supabase_rag_search_hardening 06_avaliacao_resposta \
+         03_supabase_app_role 07_admin_rag_review \
+         08_admin_curadoria_realtime 09_rag_nivel_confianca; do
+  psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f $f.sql
+done
 ```
 
-A ordem importa: `02_` e `04_` usam objetos criados pelo `01_`; `03_` concede
-permissões e políticas para todos os objetos.
+Fora do Supabase, remova o `08_admin_curadoria_realtime` da lista.

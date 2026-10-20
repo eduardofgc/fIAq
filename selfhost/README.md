@@ -47,12 +47,14 @@ O Postgres do stack já vem com pgvector instalado.
 ## 2. Aplicar o schema do fIAq
 
 De dentro da VM, na raiz deste repositório, aplique os SQLs **nesta ordem**
-(igual ao `db/SETUP.md` — a ordem difere da numeração):
+(igual ao `db/SETUP.md`; a ordem difere da numeração, porque o `03_` concede
+permissões em tabelas criadas pelo `04_` e pelo `06_`):
 
 ```bash
 for f in 01_faq_tabelas 02_perguntas_tabelas 04_rag_pgvector \
-         05_supabase_rag_search_hardening 03_supabase_app_role \
-         06_avaliacao_resposta 07_admin_rag_review 08_admin_curadoria_realtime; do
+         05_supabase_rag_search_hardening 06_avaliacao_resposta \
+         03_supabase_app_role 07_admin_rag_review \
+         08_admin_curadoria_realtime 09_rag_nivel_confianca; do
   docker compose -f /caminho/supabase/docker/docker-compose.yml \
     exec -T db psql -U postgres -d postgres -v ON_ERROR_STOP=1 < db/$f.sql
 done
@@ -97,14 +99,19 @@ Os usuários do GoTrue gerenciado **não migram sozinhos**. Coloque os e-mails e
 `ADMIN_BOOTSTRAP_EMAILS`, acesse `/admin` e use "esqueci a senha"/convite para
 recriar as contas. Os convites chegam pelo SMTP configurado no passo 1.
 
-## Diferenças vs. produção atual (Vercel + Supabase gerenciado)
+## Relação com os outros caminhos de deploy
 
-| Item | Gerenciado | Self-hosted |
+A produção atual (<https://fiaq.porto.ooo>) usa a mesma ideia deste runbook
+(Supabase self-hosted + app em container com adapter-node), mas gerenciada
+pelo **Coolify** em vez de `docker compose` manual. Os detalhes específicos do
+Coolify (nome do host do banco, rede, imagem do MinIO, aplicar SQL pelo
+terminal web) estão em [`docs/DEPLOY.md`](../docs/DEPLOY.md).
+
+| Item | Vercel + Supabase gerenciado (legado) | Self-hosted (este runbook / Coolify) |
 |---|---|---|
 | Deploy do app | Vercel (adapter-vercel) | Container Node 22 (`DEPLOY_TARGET=node` → adapter-node) |
-| `DATABASE_URL` | Pooler `:6543` (`fiaq_app.REF`) | Direto no serviço `db:5432` (`fiaq_app`) |
+| `DATABASE_URL` | Pooler `:6543` (`fiaq_app.REF`) | Direto no Postgres do stack, porta `5432` |
 | Pausa por inatividade | Sim (free tier, ~7 dias) | Não |
 | SMTP dos convites | Embutido no Supabase | Você configura (passo 1.3) |
 
-O deploy na Vercel continua funcionando normalmente: sem `DEPLOY_TARGET=node`,
-o `svelte.config.js` segue usando o adapter-vercel.
+Sem `DEPLOY_TARGET=node`, o `svelte.config.js` continua usando o adapter-vercel.

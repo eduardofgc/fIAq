@@ -1,5 +1,11 @@
 # Relatório Executivo — Arquitetura e Deploy do fIAq
 
+> **Documento histórico (junho de 2026).** Desde então a produção saiu da
+> Vercel + Supabase gerenciado e foi para o Coolify com Supabase self-hosted
+> (<https://fiaq.porto.ooo>), e o schema ganhou as migrations 06 a 09
+> (feedback, curadoria administrativa, Realtime e nível de confiança). O estado
+> atual está em [`DEPLOY.md`](./DEPLOY.md) e [`../db/README.md`](../db/README.md).
+
 **Status em 24/06/2026:** a migração SvelteKit/Vite está validada no branch/PR; a produção pública continua em `https://fiaq-app.vercel.app` até o merge/deploy em `main`.
 
 ## Visão geral

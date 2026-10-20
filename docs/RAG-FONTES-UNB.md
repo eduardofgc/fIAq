@@ -37,23 +37,31 @@ O caminho recomendado continua sendo DB-first: pesquisar fontes oficiais, transf
 
    O seed recria documentos/chunks ativos no Supabase/Postgres usando o modelo de embedding configurado. O chat continua consultando `buscar_rag_chunks(...)` no banco.
 
+Paginas crawleadas automaticamente costumam ser menus ou textos institucionais, sem o "como fazer". Para os processos mais perguntados existem tambem **guias passo a passo escritos a mao** (`data/crawl/*-guia-*.md`), feitos a partir de manuais e paginas oficiais. O fluxo para adicionar um, e as regras de escrita, estao em [`DESENVOLVIMENTO.md`](./DESENVOLVIMENTO.md#adicionar-ou-atualizar-conhecimento).
+
 ## Por que nao pesquisar a web em toda pergunta?
 
-Pesquisa em tempo real aumenta latencia, custo e risco de resposta com fontes ruidosas ou temporarias. Para o fIAq, a melhor divisao e:
+Pesquisa em tempo real aumenta latencia, custo e risco de resposta com fontes ruidosas ou temporarias. Para o fIAq, a divisao e:
 
-- ingestao: pesquisa/crawler/browser-use encontram fontes;
-- curadoria: filtros por dominio, score, conteudo minimo e manifestos versionados;
+- ingestao: pesquisa/crawler/browser-use encontram fontes; guias manuais cobrem os procedimentos;
+- curadoria: filtros por dominio, score, conteudo minimo e `nivel_confianca` (`oficial` x `institucional`);
 - recuperacao: Postgres/pgvector responde rapido e com fontes conhecidas;
-- fallback futuro: pesquisa web apenas quando a confianca do RAG for baixa.
+- pesquisa web (Firecrawl, ja implementada): so quando o contexto local nao e suficiente, quando a pergunta e sobre algo atual ("ultimas noticias", "greve", "2026") ou quando o aluno pede mais detalhes numa continuacao.
 
-## Evolucao otimizada
+## Como a busca funciona hoje
 
-O proximo salto tecnico e busca hibrida no banco:
+A busca ja e hibrida, mas a parte textual roda no app, nao no banco:
 
-- manter embeddings com `pgvector` para significado;
-- adicionar indice full-text em portugues em `rag_chunk` para termos exatos como SIGAA, SEI, SAA, RU e nomes de servicos;
-- combinar score vetorial + `ts_rank` + boosts por origem;
-- usar checksum/freshness para recrawlear apenas paginas alteradas;
-- agendar o crawl semanalmente ou sob demanda antes de deploy.
+1. busca vetorial (`buscar_rag_chunks`, cosine distance com `pgvector`, com boost por origem e por nivel de confianca) e busca textual (termos da pergunta contra titulo e conteudo) rodam em paralelo;
+2. os resultados sao reordenados em `server/utils/chatRetrieval.ts` (`rankContextResults`) por cobertura dos termos da pergunta, titulo, confianca e, em perguntas de "como faco", prioridade a guias passo a passo;
+3. `hasEnoughLocalContext` decide se os 3 melhores trechos bastam ou se a pergunta vai para a pesquisa web.
 
-Assim o RAG fica mais forte para perguntas gerais sobre a UnB sem transformar o chat em um crawler ao vivo.
+## Avaliacao
+
+`pnpm eval:rag` roda esse mesmo codigo sobre o `rag-index.json` com as perguntas de `fiaq-app/scripts/eval-rag-casos.json` e informa, para cada uma, se o documento esperado ficou entre os 3 trechos usados e se a decisao de pesquisa web foi a esperada. Ao adicionar um guia ou mexer no ranking, rode antes e depois; ao cobrir um assunto novo, adicione um caso.
+
+## Proximos passos possiveis
+
+- mover a busca textual para o banco com indice full-text em portugues (`tsvector` + `ts_rank`), que tambem resolveria variacoes de verbo ("tranco"/"trancar") hoje tratadas por heuristica;
+- avaliar tambem as respostas do modelo (nao so a busca), por exemplo checando se os passos do guia aparecem na resposta;
+- usar checksum/freshness para recrawlear apenas paginas alteradas e agendar o crawl.

@@ -2,20 +2,27 @@
 
 Este arquivo orienta agentes que forem trabalhar neste repositorio. Ele resume a
 arquitetura, os comandos seguros, os fluxos ja implementados e os cuidados que
-evitam quebrar Vercel, Supabase, RAG, autenticacao administrativa ou a UX do
-chat.
+evitam quebrar o deploy, o banco, o RAG, a autenticacao administrativa ou a UX
+do chat.
 
 ## Estado atual
 
-- Aplicacao em producao: <https://fiaq-app.vercel.app>
-- Branch de producao: `main`
+- Aplicacao em producao: <https://fiaq.porto.ooo>
+- Hospedagem: Coolify (projeto `Fiaq-Back`, ambiente `production`). O app e
+  buildado pelo `Dockerfile` da raiz (adapter-node); o banco e um servico
+  Supabase self-hosted no mesmo projeto. Detalhes em `docs/DEPLOY.md`.
+- Branch de producao: `main`. O deploy nao e automatico: depois do merge, alguem
+  clica em Redeploy no Coolify.
 - App SvelteKit/Vite fica em `fiaq-app/`, nao na raiz.
-- Vercel esta configurado com `Root Directory = fiaq-app`.
-- Previews da Vercel estao bloqueados em `fiaq-app/vercel.json`; apenas `main`
-  gera deployment.
-- Banco principal em producao: Supabase Postgres com `pgvector`.
-- RAG em runtime e DB-first: consulta Supabase/pgvector antes do fallback JSON.
+- Deploy antigo na Vercel (<https://fiaq-app.vercel.app>) continua configurado,
+  mas o Supabase gerenciado dele esta fora do ar. Nao use como referencia de
+  producao.
+- Banco principal: Postgres com `pgvector` (Supabase self-hosted).
+- RAG em runtime e DB-first: consulta Postgres/pgvector antes do fallback JSON.
 - Admin em producao: `/admin`, com Supabase Auth e lista `admin_usuario`.
+- IA: modelos gratuitos do OpenRouter, com cota diaria por conta somando chat e
+  embeddings (50/dia sem creditos, 1000/dia com US$ 10 de credito). Testes e
+  seeds consomem a mesma cota do chat de producao.
 
 ## Stack
 
@@ -26,7 +33,8 @@ chat.
 - IA: OpenRouter em producao; Ollama pode ser usado localmente.
 - Embeddings: OpenRouter em producao, mesmo modelo usado no seed do RAG.
 - Banco: PostgreSQL/Supabase com `pgvector`.
-- Deploy: Vercel.
+- Pesquisa web: Firecrawl, restrito a dominios oficiais.
+- Deploy: Coolify (Docker, adapter-node); Vercel como caminho legado.
 - Package manager: `pnpm`.
 - Linguagem: TypeScript.
 
@@ -36,6 +44,7 @@ chat.
 .
 ├── AGENTS.md
 ├── README.md
+├── Dockerfile                   # imagem de producao (Coolify / self-host)
 ├── package.json                 # scripts raiz chamam pnpm --dir fiaq-app
 ├── docs/
 │   ├── DEPLOY.md
@@ -49,7 +58,10 @@ chat.
 │   ├── 04_rag_pgvector.sql
 │   ├── 05_supabase_rag_search_hardening.sql
 │   ├── 06_avaliacao_resposta.sql
-│   └── 07_admin_rag_review.sql
+│   ├── 07_admin_rag_review.sql
+│   ├── 08_admin_curadoria_realtime.sql
+│   └── 09_rag_nivel_confianca.sql
+├── selfhost/                    # docker compose para VM propria
 └── fiaq-app/
     ├── src/                     # rotas SvelteKit, UI, stores e APIs
     │   ├── routes/              # páginas e /api/* via +server.ts
@@ -95,6 +107,7 @@ pnpm fetch:links
 pnpm seed:knowledge
 pnpm index:rag
 pnpm test:openrouter
+pnpm eval:rag
 ```
 
 Quando precisar rodar diretamente no app:
@@ -113,14 +126,28 @@ pnpm typecheck
 NODE_OPTIONS=--max-old-space-size=4096 pnpm build
 ```
 
-Depois do deploy em `main`, valide producao:
+Depois do merge em `main` e do Redeploy no Coolify, valide producao:
 
 ```bash
-curl https://fiaq-app.vercel.app/api/health/db
+curl https://fiaq.porto.ooo/api/health/db
 curl -sS -o /tmp/fiaq-faq.json \
   -w '%{http_code} %{content_type} %{size_download}\n' \
-  https://fiaq-app.vercel.app/api/faq
+  https://fiaq.porto.ooo/api/faq
 ```
+
+Para mudancas de ranking, busca ou conteudo do RAG, rode tambem:
+
+```bash
+pnpm eval:rag            # --verbose mostra o top 3 de todos os casos
+```
+
+Ele roda o mesmo codigo da rota (`server/utils/chatRetrieval.ts`) sobre o
+`rag-index.json` com as perguntas de `fiaq-app/scripts/eval-rag-casos.json` e
+falha (exit 1) se o documento esperado sair do top 3 ou se a decisao de
+pesquisa web mudar. Os embeddings das perguntas ficam em cache
+(`scripts/eval-rag-cache.json`), entao so pergunta nova gasta cota. Ajustes de
+ranking ja quebraram perguntas que funcionavam mais de uma vez; nao ajuste o
+`esperado` de um caso so para o teste passar.
 
 Resposta esperada do healthcheck:
 
@@ -134,8 +161,13 @@ Modelo em `fiaq-app/.env.example`. Nunca versionar valores reais.
 
 Principais variaveis:
 
-- `DATABASE_URL`: runtime deve preferir Supabase Transaction Pooler, porta
-  `6543`, `sslmode=require`, role limitada `fiaq_app`.
+- `DATABASE_URL`: no Coolify aponta para o Postgres pela rede interna, usando o
+  nome completo do container (`supabase-db-<id-do-servico>:5432`; o nome curto
+  `supabase-db` nao resolve a partir do app). Em Supabase gerenciado, use o
+  Transaction Pooler (`6543`, `sslmode=require`). O recomendado e a role
+  limitada `fiaq_app`.
+- `SEED_MAX_EMBEDDINGS`: limite de embeddings novos por execucao do seed
+  (padrao 40).
 - `CHAT_PROVIDER`: `openrouter` em producao; `ollama` local e possivel.
 - `EMBED_PROVIDER`: `openrouter` em producao; precisa combinar com o seed.
 - `OPENROUTER_API_KEY`: secret.
@@ -156,7 +188,8 @@ Principais variaveis:
 
 ## Banco de dados
 
-SQLs devem ser aplicados nesta ordem:
+SQLs devem ser aplicados nesta ordem (diferente da numeracao: o `03_` concede
+permissoes em tabelas do `04_` e do `06_`):
 
 ```text
 db/01_faq_tabelas.sql
@@ -166,7 +199,14 @@ db/05_supabase_rag_search_hardening.sql
 db/06_avaliacao_resposta.sql
 db/03_supabase_app_role.sql
 db/07_admin_rag_review.sql
+db/08_admin_curadoria_realtime.sql   # so Supabase (auth.jwt, anon, Realtime)
+db/09_rag_nivel_confianca.sql
 ```
+
+Depois do `09_`, reaplicar o `04_` ou o `05_` falha com `cannot change return
+type` (eles recriam a versao antiga de `buscar_rag_chunks`). E esperado; nao
+apague a funcao para "consertar". Ordem validada num `pgvector/pgvector:pg16`
+vazio.
 
 Tabelas principais:
 
@@ -179,7 +219,13 @@ Tabelas principais:
 
 Funcao principal:
 
-- `buscar_rag_chunks(...)`: busca vetorial em `rag_chunk`.
+- `buscar_rag_chunks(...)`: busca vetorial em `rag_chunk`, com boost por origem
+  e por `nivel_confianca`.
+
+Nivel de confianca (`nivel_confianca`, migration `09_`): FAQ e PDFs sao
+`oficial`; paginas de `crawl/` sao `oficial` se o dominio da `url` estiver em
+`OFICIAL_HOSTS` (`fiaq-app/scripts/trustLevel.mjs`), senao `institucional`.
+Conteudo `institucional` nunca e considerado contexto suficiente sozinho.
 
 Role de runtime:
 
@@ -195,13 +241,31 @@ Endpoint principal:
 
 Fluxo:
 
-1. Recebe historico de mensagens.
-2. Busca contexto no Supabase/RAG por texto/vetor.
-3. Se nao houver contexto local forte para pergunta de escopo UnB, usa
-   Firecrawl em dominios oficiais.
-4. Chama OpenRouter e responde via SSE.
-5. Envia fontes separadas do corpo da resposta.
-6. Registra pergunta anonima no Supabase depois da resposta.
+1. Recebe historico de mensagens. Em continuacoes ("e como eu dou
+   prosseguimento?"), junta as perguntas anteriores na busca.
+2. Busca contexto no banco por vetor e por texto, em paralelo.
+3. Reordena (`rankContextResults`) e fica com os 3 melhores trechos. Em
+   perguntas de "como + verbo", guias passo a passo ganham prioridade.
+4. `hasEnoughLocalContext` decide se basta. Vai para o Firecrawl (dominios
+   oficiais) quando a pergunta e de escopo UnB e: o contexto nao basta, o
+   assunto e atual ("2026", "greve", "ultimas noticias"...), ou e uma
+   continuacao pedindo mais detalhe. Se a base local era boa, o contexto web e
+   somado ao local em vez de substitui-lo.
+5. Chama OpenRouter e responde via SSE.
+6. Envia fontes separadas do corpo da resposta. Se todas sao da base interna, a
+   UI mostra "Consultado do banco de dados (titulos)"; com fontes web, mostra
+   "Fontes verificadas".
+7. Registra pergunta anonima no banco depois da resposta.
+
+A busca, o ranking e a decisao de suficiencia ficam em
+`server/utils/chatRetrieval.ts` (`searchRag`, `selectLocalContext`), fora da
+rota, para o `pnpm eval:rag` usar o mesmo codigo. As heuristicas de termos ficam
+nesse arquivo, em `server/repositorios/rag.ts` (busca textual no banco) e
+`server/utils/vectorStore.ts` (busca no JSON). Cada um tem sua lista de
+stopwords: ao mudar uma, avalie as outras (a do chat tem palavras extras de
+pergunta, como "pra" e "faco", de proposito). Termos de 2 letras (ex.: "RU")
+contam, mas so casam como palavra inteira; substring so vale para termos de 4+
+letras.
 
 Endpoint de complemento web:
 
@@ -297,6 +361,8 @@ Principais pontos ja aplicados:
 ## Arquivos de backend que costumam ser tocados
 
 - `fiaq-app/src/routes/api/chat/+server.ts`: chat RAG + fallback automatico web.
+- `fiaq-app/server/utils/chatRetrieval.ts`: busca, ranking e decisao de contexto
+  do chat (usado tambem pelo `pnpm eval:rag`).
 - `fiaq-app/src/routes/api/chat/web/+server.ts`: complemento por feedback negativo.
 - `fiaq-app/src/routes/api/chat/feedback/+server.ts`: feedback e candidatas.
 - `fiaq-app/src/routes/api/admin/**/*.ts`: admin e convites.
@@ -315,28 +381,61 @@ Diretorios relevantes:
 - `fiaq-app/data/sources/`: fontes editaveis.
 - `fiaq-app/data/faq/`: JSON gerado do FAQ.
 - `fiaq-app/data/pdfs/`: PDFs usados no seed.
-- `fiaq-app/data/crawl/`: paginas crawleadas em Markdown.
-- `fiaq-app/server/assets/rag-index.json`: fallback legado.
+- `fiaq-app/data/crawl/`: paginas crawleadas e guias passo a passo
+  (`*-guia-*.md`) em Markdown com frontmatter.
+- `fiaq-app/server/assets/rag-index.json`: fallback do runtime e, mais
+  importante, cache de embeddings que o seed reaproveita para nao gastar cota.
 
 Scripts:
 
 - `scripts/build-faq.mjs`: gera FAQ a partir das fontes.
 - `scripts/fetch-links.mjs`: recrawleia links institucionais.
 - `scripts/discover-unb-sources.mjs`: descobre/pontua fontes oficiais.
-- `scripts/seed-knowledge.mjs`: popula FAQ + RAG no banco.
-- `scripts/build-rag-index.mjs`: regenera fallback JSON.
+- `scripts/add-crawl-file.mjs <slug...>`: embeda so os arquivos de `crawl/`
+  indicados e grava no `rag-index.json`. E o jeito barato de adicionar conteudo.
+- `scripts/tag-trust-level.mjs`: reclassifica `nivelConfianca` no
+  `rag-index.json` sem re-embedar (use apos mudar `OFICIAL_HOSTS`).
+- `scripts/trustLevel.mjs`: lista `OFICIAL_HOSTS` e classificacao de confianca.
+- `scripts/seed-knowledge.mjs`: popula FAQ + RAG no banco. Reaproveita vetores
+  do `rag-index.json`, pula o que nao mudou (checksum inclui o titulo), gera no
+  maximo `SEED_MAX_EMBEDDINGS` por execucao e para com seguranca se a cota
+  acabar. Em producao roda no terminal do container do app no Coolify.
+- `scripts/build-rag-index.mjs`: regenera o JSON inteiro (gasta uma chamada por
+  trecho; evite com a cota gratuita).
 - `scripts/test-openrouter.mjs`: valida OpenRouter isolado.
 
-Regra critica:
+Regras criticas:
 
 - O modelo de embedding do seed deve ser igual ao modelo de embedding do
   runtime. Se mudar modelo, reindexe todo o RAG.
+- Scripts que rodam no container de producao so podem importar de `scripts/`:
+  a imagem copia `build/`, `scripts/`, `data/` e `server/assets/`, nao o resto de
+  `server/`.
+- Guias "como fazer" so com fonte oficial lida na hora, passos primeiro, siglas
+  por extenso e titulo com "passo a passo". Regras completas em
+  `docs/DESENVOLVIMENTO.md`.
+- Ao adicionar conteudo, commite o `.md` junto com o `rag-index.json` atualizado.
 
-## Deploy Vercel
+## Deploy
+
+Producao: Coolify. Runbook completo, variaveis e problemas conhecidos em
+`docs/DEPLOY.md`. Pontos que ja causaram incidente:
+
+- O nome curto `supabase-db` so resolve dentro do stack do Supabase; o app usa
+  `supabase-db-<id-do-servico>`.
+- O servico Supabase precisa estar ligado a rede compartilhada do Coolify
+  ("Network attachment").
+- A imagem `quay.io/minio/mc` deixou de ser publica; o servico
+  `minio-createbucket` foi removido do compose do Supabase.
+- O terminal web do Coolify corrompe colagens grandes: aplique SQL em blocos
+  pequenos ou com `psql -c` de uma linha.
+- `VITE_*` sao embutidas no build; mudou, precisa de novo deploy.
+
+### Vercel (legado)
 
 Arquivo: `fiaq-app/vercel.json`
 
-Configuracao atual:
+Configuracao:
 
 ```json
 {
@@ -355,10 +454,9 @@ Configuracao atual:
 
 Implicacoes:
 
-- Push em `main` gera production deploy.
+- Push em `main` ainda gera deploy na Vercel, mas sem banco ele responde 503 no
+  healthcheck.
 - Branches `codex/*` e demais branches nao geram preview.
-- Antes de dizer que esta pronto, conferir Vercel `READY` para o commit correto.
-- Para investigar deploy, use Vercel MCP quando disponivel.
 
 ## E2E e evidencias
 
@@ -428,6 +526,20 @@ Resumo das entregas recentes que explicam o estado atual:
 - Protecoes contra resposta streamada vazia.
 - Login admin polido: centralizado, sem quadro informativo lateral e com olho de
   senha.
+- Migracao da producao para Coolify com Supabase self-hosted (schema 01-09
+  aplicado pelo terminal, seed retomavel com reaproveitamento de embeddings).
+- `nivel_confianca` no RAG (`oficial` x `institucional`).
+- Guias passo a passo com fonte oficial para os processos mais comuns da UnB
+  (matricula, trancamento, SEI, documentos, assistencia estudantil,
+  aproveitamento, revisao de mencao, estagio, diploma, exercicios domiciliares,
+  reintegracao, migracao de estrutura curricular).
+- Ranking: prioridade a guias em perguntas de "como + verbo", fim do bonus a
+  titulos genericos curtos, termos de 2 letras como palavra inteira,
+  continuacoes pedindo detalhe somam web ao contexto local.
+- Contexto maior por trecho (ate 3.800 caracteres, 7.000 no total) para guias
+  chegarem inteiros ao modelo; e-mails preservados no contexto.
+- Aviso "Consultado do banco de dados (...)" quando a resposta usa so a base
+  interna; interface sem travessao.
 
 ## Checklist para finalizar uma tarefa
 
@@ -438,7 +550,8 @@ Resumo das entregas recentes que explicam o estado atual:
    - `pnpm typecheck`
    - `NODE_OPTIONS=--max-old-space-size=4096 pnpm build`
 4. Se afetar producao, fazer commit e push em `main` apenas quando pedido.
-5. Conferir Vercel `READY` para o commit certo.
+5. Depois do Redeploy no Coolify, conferir o healthcheck de producao. Se mudou
+   `data/` ou `rag-index.json`, rodar o seed no container do app.
 6. Se afetar banco/RAG/admin/chat, validar endpoint ou fluxo navegavel.
 7. Remover/mover artefatos temporarios e deixar o repo limpo.
 8. Responder com o que mudou, comandos rodados, deploy/status e pendencias.

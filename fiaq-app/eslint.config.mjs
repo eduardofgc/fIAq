@@ -9,6 +9,8 @@ export default [
     ignores: [
       '.svelte-kit/**',
       '**/.svelte-kit/**',
+      // Sobra da versão Nuxt; o eslint.config.mjs de lá quebra o ESLint 10.
+      '.nuxt/**',
       '.vercel/**',
       '**/.vercel/**',
       'build/**',

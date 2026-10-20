@@ -15,7 +15,8 @@
     "seed:knowledge": "pnpm --dir fiaq-app seed:knowledge",
     "fetch:links": "pnpm --dir fiaq-app fetch:links",
     "index:rag": "pnpm --dir fiaq-app index:rag",
-    "test:openrouter": "pnpm --dir fiaq-app test:openrouter"
+    "test:openrouter": "pnpm --dir fiaq-app test:openrouter",
+    "eval:rag": "pnpm --dir fiaq-app eval:rag"
   },
   "devDependencies": {
     "cross-env": "^7.0.3"

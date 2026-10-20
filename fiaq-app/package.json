@@ -15,6 +15,7 @@
     "fetch:unb": "node scripts/discover-unb-sources.mjs --write-crawl",
     "research:unb:browser": "python3 scripts/research-unb-browser-use.py",
     "test:openrouter": "node scripts/test-openrouter.mjs",
+    "eval:rag": "tsx scripts/eval-rag.ts",
     "lint": "eslint .",
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
   },

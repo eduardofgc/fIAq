@@ -94,7 +94,7 @@
 
     {#if faqQuery.isLoading}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {#each Array(6) as _, i (i)}
+        {#each [0, 1, 2, 3, 4, 5] as i (i)}
           <div class="h-20 animate-pulse rounded-2xl border border-gray-200 bg-white shadow-sm"></div>
         {/each}
       </div>
