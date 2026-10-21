@@ -176,7 +176,9 @@ Principais variaveis:
 - `OPENROUTER_STREAM_PREFLIGHT_CHARS`: minimo de chars antes do streaming.
 - `OPENROUTER_EMBED_MODEL`: modelo de embedding usado tambem no seed.
 - `FIRECRAWL_API_URL`: endpoint/proxy Firecrawl para busca web.
-- `FIRECRAWL_API_KEY`: secret opcional.
+- `FIRECRAWL_API_KEY`: secret. Obrigatoria com a API publica
+  (`api.firecrawl.dev`, padrao quando `FIRECRAWL_API_URL` esta vazia): sem
+  ela, o limite do acesso sem chave estoura e toda pesquisa web volta vazia.
 - `FIRECRAWL_INCLUDE_DOMAINS`: dominios oficiais permitidos.
 - `VITE_SUPABASE_URL`: URL publica do Supabase para o cliente.
 - `VITE_SUPABASE_ANON_KEY`: anon key publica do Supabase para o cliente.
@@ -403,6 +405,12 @@ Scripts:
 - `scripts/build-rag-index.mjs`: regenera o JSON inteiro (gasta uma chamada por
   trecho; evite com a cota gratuita).
 - `scripts/test-openrouter.mjs`: valida OpenRouter isolado.
+- `scripts/fetch-professores.mjs` (`pnpm fetch:professores`): coleta nome,
+  e-mail, telefone e foto de <https://cic.unb.br/professores> para
+  `data/professores.json` e `public/professores/`, usados pela pagina
+  `/professores` e pelo bloco "Professores" da home. Use `cic.unb.br` sem `www`
+  (o certificado de `www.cic.unb.br` nao cobre esse nome). Rode de novo quando a
+  lista do departamento mudar e commite o JSON junto com as fotos.
 
 Regras criticas:
 

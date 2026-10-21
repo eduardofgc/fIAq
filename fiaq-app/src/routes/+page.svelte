@@ -4,6 +4,9 @@
   import FiaqIcon from '$lib/components/FiaqIcon.svelte'
   import type { FaqCategory } from '$lib/types/faq'
   import { apiFetch } from '$lib/utils/api'
+  import dadosProfessores from '../../data/professores.json'
+
+  const totalProfessores = dadosProfessores.professores.length
 
   let query = $state('')
 
@@ -119,6 +122,17 @@
             </div>
           </a>
         {/each}
+        <a href="/professores" class="group">
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4 flex items-center gap-4 hover:shadow-md hover:border-[#1a2e5a] transition-all duration-200 cursor-pointer">
+            <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-blue-50 transition-colors">
+              <FiaqIcon name="i-lucide-graduation-cap" class="w-6 h-6 text-[#1a2e5a]" />
+            </div>
+            <div>
+              <p class="font-bold text-[#1a2e5a] text-sm">Professores</p>
+              <p class="text-xs text-gray-400 mt-0.5">{totalProfessores} contatos</p>
+            </div>
+          </div>
+        </a>
       </div>
     {/if}
 
