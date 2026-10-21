@@ -71,7 +71,10 @@ function decodeCodePoint(entity: string, codePoint: number): string {
 function plainText(text: string): string {
   return decodeEntities(text)
     .replace(/\[([^\]]+)\]\((?:[^)]*)\)/g, '$1')
-    .replace(/[*_~`>#]/g, '')
+    // Só o marcador de citação no início da linha; ">" no meio é separador de
+    // menu ("Ensino > Trancar").
+    .replace(/^[ \t]*>+[ \t]?/gm, '')
+    .replace(/[*_~`#]/g, '')
     .replace(/\r\n/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim()
@@ -403,7 +406,9 @@ function drawPdfLogo(doc: InstanceType<typeof import('jspdf').jsPDF>, x: number,
 function stripInlineMarkdown(text: string): string {
   return text
     .replace(/\[([^\]]+)\]\((?:[^)]*)\)/g, '$1')
-    .replace(/[*_~`>#]/g, '')
+    // ">" fica: no meio do texto é separador de menu ("Ensino > Trancar"). O
+    // marcador de citação no início da linha sai em markdownBlocks.
+    .replace(/[*_~`#]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
 }
@@ -442,31 +447,33 @@ function markdownBlocks(text: string): PdfBlock[] {
       continue
     }
 
-    if (!trimmed) {
+    const content = trimmed.replace(/^>+\s*/, '')
+
+    if (!content) {
       flushParagraph()
       continue
     }
 
-    const heading = trimmed.match(/^#{1,4}\s+(.+)$/)
+    const heading = content.match(/^#{1,4}\s+(.+)$/)
     if (heading) {
       flushParagraph()
       blocks.push({ type: 'heading', text: stripInlineMarkdown(heading[1] ?? '') })
       continue
     }
 
-    if (/^[-*]\s+/.test(trimmed)) {
+    if (/^[-*]\s+/.test(content)) {
       flushParagraph()
-      blocks.push({ type: 'paragraph', text: `- ${stripInlineMarkdown(trimmed.replace(/^[-*]\s+/, ''))}` })
+      blocks.push({ type: 'paragraph', text: `- ${stripInlineMarkdown(content.replace(/^[-*]\s+/, ''))}` })
       continue
     }
 
-    if (/^\d+\.\s+/.test(trimmed)) {
+    if (/^\d+\.\s+/.test(content)) {
       flushParagraph()
-      blocks.push({ type: 'paragraph', text: stripInlineMarkdown(trimmed) })
+      blocks.push({ type: 'paragraph', text: stripInlineMarkdown(content) })
       continue
     }
 
-    paragraph.push(trimmed)
+    paragraph.push(content)
   }
 
   if (inCode) flushCode()
