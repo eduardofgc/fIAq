@@ -193,7 +193,8 @@ Diferenças intencionais em relação ao fluxograma manual:
 
 ## Lista de professores
 
-A página `/professores` (e o bloco "Professores" da home) usa
+A página `/professores`, o bloco "Professores" da home e o chat ("qual o e-mail
+do professor Fulano?") usam
 `fiaq-app/data/professores.json` e as fotos em `fiaq-app/public/professores/`,
 coletados da página oficial <https://cic.unb.br/professores>. Para atualizar:
 
@@ -297,7 +298,13 @@ faço..." recebam o procedimento completo. Ao escrever um:
 ```bash
 pnpm eval:rag             # resumo e falhas
 pnpm eval:rag --verbose   # top 3 de todos os casos
+pnpm eval:rag --faq       # cada pergunta do FAQ tem que achar a própria resposta
 ```
+
+O `--faq` não usa `eval-rag-casos.json`: gera um caso por entrada de
+`data/faq/`, com o título como pergunta. Rode depois de mexer no FAQ ou no
+ranking. Perguntas reformuladas (do jeito que o aluno escreve) ficam nos casos
+normais.
 
 O script roda a mesma busca e o mesmo ranking do `/api/chat`
 (`server/utils/chatRetrieval.ts`) sobre o `rag-index.json`, sem banco e sem

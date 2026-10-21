@@ -135,8 +135,8 @@ OPENROUTER_API_KEY=<secret>
 OPENROUTER_CHAT_MODEL=google/gemma-4-31b-it:free
 OPENROUTER_CHAT_FALLBACK_MODELS=nvidia/nemotron-3-ultra-550b-a55b:free,nvidia/nemotron-3-super-120b-a12b:free
 OPENROUTER_EMBED_MODEL=nvidia/llama-nemotron-embed-vl-1b-v2:free
-FIRECRAWL_API_URL=<url do Firecrawl>
-FIRECRAWL_API_KEY=<secret, se exigido>
+FIRECRAWL_API_URL=<vazio usa https://api.firecrawl.dev>
+FIRECRAWL_API_KEY=<secret; obrigatória com api.firecrawl.dev>
 FIRECRAWL_INCLUDE_DOMAINS=cic.unb.br,www.cic.unb.br,unb.br,www.unb.br,saa.unb.br,sigaa.unb.br
 VITE_SUPABASE_URL=<URL pública do Kong do serviço Supabase>   # marcar como Build Variable
 VITE_SUPABASE_ANON_KEY=<anon key do serviço Supabase>        # marcar como Build Variable
@@ -149,6 +149,11 @@ ADMIN_BASE_URL=https://fiaq.porto.ooo
 - As `VITE_*` são embutidas no bundle do navegador **durante o build** (são
   `ARG` no `Dockerfile`). Mudou alguma? Faça um novo deploy, não só restart.
 - O modelo de embedding precisa ser o mesmo usado no seed (ver passo 4).
+- Sem `FIRECRAWL_API_KEY`, o app usa o acesso sem chave do Firecrawl, que
+  tem limite muito baixo: quando estoura, toda pesquisa web volta vazia (o
+  "Não me ajudou" falha e perguntas sobre assuntos atuais ficam sem fontes).
+  Cada pergunta que vai para a web pode fazer mais de uma busca; acompanhe os
+  créditos no painel do Firecrawl.
 - Hoje a produção conecta com o usuário `postgres`. O recomendado é usar a role
   limitada `fiaq_app` criada pelo `03_` (`ALTER ROLE fiaq_app WITH LOGIN
   PASSWORD '...'`) e trocar a `DATABASE_URL`, já que o seed roda com o usuário
@@ -249,6 +254,7 @@ psql -U postgres -d postgres -c "SELECT origem, nivel_confianca, count(*) FROM r
 | `getent hosts` não retorna nada nem com o nome completo | Serviço Supabase só na rede do próprio stack | Ajuste o *Network attachment* (passo 1) e reinicie o serviço |
 | Restart do Supabase falha com `quay.io/minio/mc ... 401` | Imagem do MinIO não é mais pública | Remova `minio-createbucket` do compose (passo 1) |
 | Chat responde "gerador de resposta ficou indisponível" | Cota diária do OpenRouter esgotada | Aguarde o reset ou adicione créditos (passo 5) |
+| Pesquisa web sempre "sem nova fonte"; "Não me ajudou" mostra "Não consegui concluir a resposta" | Firecrawl sem chave (limite do acesso sem chave estourado) ou sem créditos | Configure `FIRECRAWL_API_KEY` (passo 3) e confira os créditos no painel do Firecrawl |
 | Seed para com "Cota diária de embeddings esgotada" | Mesma cota | Rode de novo depois do reset; o progresso fica salvo |
 | Seed falha com `Cannot find module ... server/utils/...` | Script importando algo fora de `scripts/` | Scripts que rodam no container só podem importar de `scripts/` (a imagem não tem `server/`, só `server/assets/`) |
 | `\d` no psql falha com `less: not found` | Container sem pager | Use `psql -P pager=off` |

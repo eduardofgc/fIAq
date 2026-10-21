@@ -43,9 +43,11 @@
   // Resposta montada só com conteúdo do banco interno confiável (sem busca
   // web): mostra um aviso direto em vez da lista expansível de fontes, já
   // que aqui a confiança é da própria base curada, não de uma fonte externa.
-  const isDbOnlyAnswer = $derived(sourceCount > 0 && !hasWebSources)
+  const dbSources = $derived(message.sources?.filter(source => source.kind !== 'link') ?? [])
+  const citedLinks = $derived(message.sources?.filter(source => source.kind === 'link') ?? [])
+  const isDbOnlyAnswer = $derived(dbSources.length > 0 && !hasWebSources)
   const dbSourceTitles = $derived(
-    [...new Set((message.sources ?? []).map(source => source.titulo.trim()).filter(Boolean))].join(', ')
+    [...new Set(dbSources.map(source => source.titulo.trim()).filter(Boolean))].join(', ')
   )
 
   const feedbackLabel = $derived.by(() => {
@@ -262,6 +264,13 @@
               <FiaqIcon name="i-lucide-database" class="h-4 w-4 shrink-0 text-[#00a155]" />
               <span>Consultado do banco de dados ({dbSourceTitles})</span>
             </div>
+            {#if citedLinks.length}
+              <div class="mt-2 grid gap-1.5" aria-label="Links citados na resposta">
+                {#each citedLinks as source (source.id)}
+                  <SourceChip {source} />
+                {/each}
+              </div>
+            {/if}
           {:else}
             <Button
               type="button"

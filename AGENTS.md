@@ -139,6 +139,7 @@ Para mudancas de ranking, busca ou conteudo do RAG, rode tambem:
 
 ```bash
 pnpm eval:rag            # --verbose mostra o top 3 de todos os casos
+pnpm eval:rag --faq      # cada pergunta do FAQ tem que achar a propria resposta
 ```
 
 Ele roda o mesmo codigo da rota (`server/utils/chatRetrieval.ts`) sobre o
@@ -246,6 +247,10 @@ Fluxo:
 1. Recebe historico de mensagens. Em continuacoes ("e como eu dou
    prosseguimento?"), junta as perguntas anteriores na busca.
 2. Busca contexto no banco por vetor e por texto, em paralelo.
+   Se a pergunta cita um professor do CIC (ou pede a lista), `selectLocalContext`
+   responde so com o contato de `data/professores.json`
+   (`server/utils/professores.ts`), sem RAG nem web. Sobrenome sozinho so conta
+   com pista como "professor" ou "e-mail" ("Campos", "Rocha" sao palavras comuns).
 3. Reordena (`rankContextResults`) e fica com os 3 melhores trechos. Em
    perguntas de "como + verbo", guias passo a passo ganham prioridade.
 4. `hasEnoughLocalContext` decide se basta. Vai para o Firecrawl (dominios
@@ -256,7 +261,9 @@ Fluxo:
 5. Chama OpenRouter e responde via SSE.
 6. Envia fontes separadas do corpo da resposta. Se todas sao da base interna, a
    UI mostra "Consultado do banco de dados (titulos)"; com fontes web, mostra
-   "Fontes verificadas".
+   "Fontes verificadas". Links que o trecho principal cita (ex.: regulamento do
+   curso no SIGAA, muito comum no FAQ) vao como fontes `kind: 'link'` e aparecem
+   como chips abaixo do selo (`extractCitedLinks`).
 7. Registra pergunta anonima no banco depois da resposta.
 
 A busca, o ranking e a decisao de suficiencia ficam em
@@ -341,6 +348,9 @@ Principais pontos ja aplicados:
 - Respostas exibem fontes como cards/chips, nao URLs soltas no corpo.
 - Marcadores de citacao numerica como `[1]` sao removidos do texto renderizado.
 - Exportacao baixa apenas a pergunta/resposta selecionada, com fontes.
+- Links para `www.cic.unb.br` (todo o FAQ aponta para la) sao trocados por
+  `cic.unb.br` nos chips e na exportacao (`src/lib/utils/sourceUrl.ts`): o
+  certificado do `www` nao cobre esse nome e o navegador mostra erro.
 - PDF de exportacao foi redesenhado em estilo mais limpo.
 - `/admin` tem login centralizado, sem card lateral, com botao de olho para
   revelar senha.
@@ -408,7 +418,7 @@ Scripts:
 - `scripts/fetch-professores.mjs` (`pnpm fetch:professores`): coleta nome,
   e-mail, telefone e foto de <https://cic.unb.br/professores> para
   `data/professores.json` e `public/professores/`, usados pela pagina
-  `/professores` e pelo bloco "Professores" da home. Use `cic.unb.br` sem `www`
+  `/professores`, pelo bloco "Professores" da home e pelo chat. Use `cic.unb.br` sem `www`
   (o certificado de `www.cic.unb.br` nao cobre esse nome). Rode de novo quando a
   lista do departamento mudar e commite o JSON junto com as fotos.
 
@@ -548,6 +558,8 @@ Resumo das entregas recentes que explicam o estado atual:
   chegarem inteiros ao modelo; e-mails preservados no contexto.
 - Aviso "Consultado do banco de dados (...)" quando a resposta usa so a base
   interna; interface sem travessao.
+- Pagina `/professores` e contato de professor no chat; links citados no FAQ
+  viram chips; `pnpm eval:rag --faq` cobre as 85 perguntas do FAQ.
 
 ## Checklist para finalizar uma tarefa
 

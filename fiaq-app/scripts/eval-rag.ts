@@ -5,7 +5,9 @@
 //
 // Uso (em fiaq-app/):  pnpm eval:rag            resumo + falhas
 //                      pnpm eval:rag --verbose  top 3 de todos os casos
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+//                      pnpm eval:rag --faq      cada pergunta do FAQ tem que
+//                                               achar a própria resposta
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 interface Caso {
@@ -30,6 +32,7 @@ const INDEX_PATH = join(ROOT, 'server', 'assets', 'rag-index.json')
 // Abaixo do limite de 20 requisições/minuto dos modelos gratuitos.
 const EMBED_INTERVAL_MS = 3500
 const verbose = process.argv.includes('--verbose')
+const modoFaq = process.argv.includes('--faq')
 
 // Sempre o índice local: resultado reprodutível, sem depender do banco.
 process.env.DATABASE_URL = ''
@@ -49,7 +52,15 @@ if (index.meta?.model !== embedInfo.model) {
 }
 loadChunks(index.chunks)
 
-const casos: Caso[] = JSON.parse(readFileSync(CASOS_PATH, 'utf8'))
+function casosDoFaq(): Caso[] {
+  const dir = join(ROOT, 'data', 'faq')
+  return readdirSync(dir)
+    .filter(file => file.startsWith('faq-') && file.endsWith('.json'))
+    .flatMap(file => JSON.parse(readFileSync(join(dir, file), 'utf8')) as Array<{ id: string, titulo: string }>)
+    .map(entrada => ({ pergunta: entrada.titulo, esperado: [entrada.id] }))
+}
+
+const casos: Caso[] = modoFaq ? casosDoFaq() : JSON.parse(readFileSync(CASOS_PATH, 'utf8'))
 
 let cache: Cache = { model: embedInfo.model, vectors: {} }
 if (existsSync(CACHE_PATH)) {
