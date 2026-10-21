@@ -191,6 +191,22 @@ Diferenças intencionais em relação ao fluxograma manual:
   registra aprovação/rejeição e, apenas na aprovação, cria o documento e o chunk
   permanentes.
 
+## Lista de professores
+
+A página `/professores` (e o bloco "Professores" da home) usa
+`fiaq-app/data/professores.json` e as fotos em `fiaq-app/public/professores/`,
+coletados da página oficial <https://cic.unb.br/professores>. Para atualizar:
+
+```bash
+pnpm fetch:professores
+```
+
+O script baixa a lista completa, decodifica os e-mails (a página os esconde de
+robôs com JavaScript) e baixa as fotos para o próprio app, porque o certificado
+HTTPS de `www.cic.unb.br` está configurado errado e o navegador bloquearia as
+imagens carregadas de lá. Confira o resumo impresso (quantos ficaram sem e-mail
+ou sem foto) e commite o JSON junto com a pasta de fotos.
+
 ## Simular o deploy localmente
 
 Para validar o bundle de produção, rode:

@@ -11,6 +11,7 @@
     "seed:knowledge": "node scripts/seed-knowledge.mjs",
     "index:rag": "node scripts/build-rag-index.mjs",
     "fetch:links": "node scripts/fetch-links.mjs",
+    "fetch:professores": "node scripts/fetch-professores.mjs",
     "discover:unb": "node scripts/discover-unb-sources.mjs",
     "fetch:unb": "node scripts/discover-unb-sources.mjs --write-crawl",
     "research:unb:browser": "python3 scripts/research-unb-browser-use.py",

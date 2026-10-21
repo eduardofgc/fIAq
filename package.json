@@ -14,6 +14,7 @@
     "seed:faq": "pnpm --dir fiaq-app seed:faq",
     "seed:knowledge": "pnpm --dir fiaq-app seed:knowledge",
     "fetch:links": "pnpm --dir fiaq-app fetch:links",
+    "fetch:professores": "pnpm --dir fiaq-app fetch:professores",
     "index:rag": "pnpm --dir fiaq-app index:rag",
     "test:openrouter": "pnpm --dir fiaq-app test:openrouter",
     "eval:rag": "pnpm --dir fiaq-app eval:rag"

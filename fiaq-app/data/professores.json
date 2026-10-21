@@ -1,0 +1,398 @@
+{
+  "fonte": "https://cic.unb.br/professores",
+  "coletadoEm": "2026-10-21",
+  "professores": [
+    {
+      "nome": "Alba Cristina Magalhaes Alves de Melo",
+      "slug": "alba-cristina-magalhaes-alves-de-melo",
+      "email": "alves@unb.br",
+      "telefone": "+55 (61) 3107-3679",
+      "foto": "/professores/alba-cristina-magalhaes-alves-de-melo.jpg",
+      "perfil": "https://cic.unb.br/professores/58-alves"
+    },
+    {
+      "nome": "Aleteia Patricia Favacho de Araujo",
+      "slug": "aleteia-patricia-favacho-de-araujo",
+      "email": "aleteia@unb.br",
+      "telefone": "+55 (61) 3107-3687",
+      "foto": "/professores/aleteia-patricia-favacho-de-araujo.jpg",
+      "perfil": "https://cic.unb.br/professores/132-aleteia"
+    },
+    {
+      "nome": "André Costa Drummond",
+      "slug": "andre-costa-drummond",
+      "email": "andred@unb.br",
+      "telefone": "+55 (61) 3107-2269",
+      "foto": "/professores/andre-costa-drummond.png",
+      "perfil": "https://cic.unb.br/professores/64-andred"
+    },
+    {
+      "nome": "Bruno Macchiavello",
+      "slug": "bruno-macchiavello",
+      "email": "macchiavello@unb.br",
+      "telefone": "+55 (61) 3107-3682",
+      "foto": "/professores/bruno-macchiavello.png",
+      "perfil": "https://cic.unb.br/professores/65-macchiavello"
+    },
+    {
+      "nome": "Camilo Chang Dórea",
+      "slug": "camilo-chang-dorea",
+      "email": "camilodorea@unb.br",
+      "telefone": "+55 (61) 3107-2267",
+      "foto": "/professores/camilo-chang-dorea.jpg",
+      "perfil": "https://cic.unb.br/professores/66-camilodorea"
+    },
+    {
+      "nome": "Carla Cavalcante Koike",
+      "slug": "carla-cavalcante-koike",
+      "email": "ckoike@unb.br",
+      "telefone": "+55 (61) 3107-3684",
+      "foto": "/professores/carla-cavalcante-koike.jpg",
+      "perfil": "https://cic.unb.br/professores/67-ckoike"
+    },
+    {
+      "nome": "Carla Denise Castanho",
+      "slug": "carla-denise-castanho",
+      "email": "carlacastanho@unb.br",
+      "telefone": "+55 (61) 3107-3662",
+      "foto": "/professores/carla-denise-castanho.jpg",
+      "perfil": "https://cic.unb.br/professores/68-carlacastanho"
+    },
+    {
+      "nome": "Cláudia Nalon",
+      "slug": "claudia-nalon",
+      "email": "nalon@unb.br",
+      "telefone": "+55 (61) 3107-3677",
+      "foto": "/professores/claudia-nalon.png",
+      "perfil": "https://cic.unb.br/professores/70-nalon"
+    },
+    {
+      "nome": "Daniel de Paula Porto",
+      "slug": "daniel-de-paula-porto",
+      "email": "daniel.porto@unb.br",
+      "telefone": "+55 (61) 3107-3661",
+      "foto": "/professores/daniel-de-paula-porto.png",
+      "perfil": "https://cic.unb.br/professores/62-daniel-de-paula-porto"
+    },
+    {
+      "nome": "Dibio Leandro Borges",
+      "slug": "dibio-leandro-borges",
+      "email": "dibio@unb.br",
+      "telefone": "+55 (61) 3107-3663",
+      "foto": "/professores/dibio-leandro-borges.jpg",
+      "perfil": "https://cic.unb.br/professores/71-dibio"
+    },
+    {
+      "nome": "Edison Ishikawa",
+      "slug": "edison-ishikawa",
+      "email": "ishikawa@unb.br",
+      "telefone": "+55 (61) 3107-2270",
+      "foto": "/professores/edison-ishikawa.png",
+      "perfil": "https://cic.unb.br/professores/72-ishikawa"
+    },
+    {
+      "nome": "Edna Dias Canedo",
+      "slug": "edna-dias-canedo",
+      "email": "ednacanedo@unb.br",
+      "telefone": "+55 (61) 3107-3691",
+      "foto": "/professores/edna-dias-canedo.jpg",
+      "perfil": "https://cic.unb.br/professores/73-ednacanedo"
+    },
+    {
+      "nome": "Eduardo Adilo Pelinson Alchieri",
+      "slug": "eduardo-adilo-pelinson-alchieri",
+      "email": "alchieri@unb.br",
+      "telefone": "+55 (61) 3107-2270",
+      "foto": "/professores/eduardo-adilo-pelinson-alchieri.jpg",
+      "perfil": "https://cic.unb.br/professores/74-alchieri"
+    },
+    {
+      "nome": "Fernanda Lima",
+      "slug": "fernanda-lima",
+      "email": "ferlima@unb.br",
+      "telefone": "+55 (61) 3107-3686",
+      "foto": "/professores/fernanda-lima.jpg",
+      "perfil": "https://cic.unb.br/professores/75-ferlima"
+    },
+    {
+      "nome": "Fernando Albuquerque",
+      "slug": "fernando-albuquerque",
+      "email": "nando@unb.br",
+      "telefone": "+55 (61) 3107-3688",
+      "foto": "/professores/fernando-albuquerque.jpg",
+      "perfil": "https://cic.unb.br/professores/76-nando"
+    },
+    {
+      "nome": "Flavio Barros Vidal",
+      "slug": "flavio-barros-vidal",
+      "email": "fbvidal@unb.br",
+      "telefone": "+55 (61) 3107-3685",
+      "foto": "/professores/flavio-barros-vidal.jpg",
+      "perfil": "https://cic.unb.br/professores/77-fbvidal"
+    },
+    {
+      "nome": "Flavio Leonardo Cavalcanti Moura",
+      "slug": "flavio-leonardo-cavalcanti-moura",
+      "email": "flaviomoura@unb.br",
+      "telefone": "+55 (61) 3107-3676",
+      "foto": "/professores/flavio-leonardo-cavalcanti-moura.jpg",
+      "perfil": "https://cic.unb.br/professores/78-flaviomoura"
+    },
+    {
+      "nome": "Genaina Nunes Rodrigues",
+      "slug": "genaina-nunes-rodrigues",
+      "email": "genaina@unb.br",
+      "telefone": "+55 (61) 3107-3682",
+      "foto": "/professores/genaina-nunes-rodrigues.jpg",
+      "perfil": "https://cic.unb.br/professores/79-genaina"
+    },
+    {
+      "nome": "Germana Menezes da Nobrega",
+      "slug": "germana-menezes-da-nobrega",
+      "email": "gmnobrega@unb.br",
+      "telefone": "+55 (61) 3107-3686",
+      "foto": "/professores/germana-menezes-da-nobrega.png",
+      "perfil": "https://cic.unb.br/professores/81-gmnobrega"
+    },
+    {
+      "nome": "Guilherme N. Ramos",
+      "slug": "guilherme-n-ramos",
+      "email": "gnramos@unb.br",
+      "telefone": "+55 (61) 3107-2269",
+      "foto": "/professores/guilherme-n-ramos.jpeg",
+      "perfil": "https://cic.unb.br/professores/82-gnramos"
+    },
+    {
+      "nome": "Jacir Luiz Bordim",
+      "slug": "jacir-luiz-bordim",
+      "email": "bordim@unb.br",
+      "telefone": "+55 (61) 3107-3681",
+      "foto": "/professores/jacir-luiz-bordim.jpg",
+      "perfil": "https://cic.unb.br/professores/83-bordim"
+    },
+    {
+      "nome": "Jan Mendonca Correa",
+      "slug": "jan-mendonca-correa",
+      "email": "jancorrea@unb.br",
+      "telefone": "+55 (61) 3107-3683",
+      "foto": "/professores/jan-mendonca-correa.png",
+      "perfil": "https://cic.unb.br/professores/84-jancorrea"
+    },
+    {
+      "nome": "Jonathan Rosa Moreira",
+      "slug": "jonathan-rosa-moreira",
+      "email": "jonathan.moreira@unb.br",
+      "telefone": "+55 (61) 3107-3661",
+      "foto": "/professores/jonathan-rosa-moreira.jpg",
+      "perfil": "https://cic.unb.br/professores/141-jonathan-rosa-moreira"
+    },
+    {
+      "nome": "Jorge C. Lucero",
+      "slug": "jorge-c-lucero",
+      "email": "lucero@unb.br",
+      "telefone": "+55 (61) 3107-3678",
+      "foto": "/professores/jorge-c-lucero.jpg",
+      "perfil": "https://cic.unb.br/professores/86-lucero"
+    },
+    {
+      "nome": "Jorge Henrique Cabral Fernandes",
+      "slug": "jorge-henrique-cabral-fernandes",
+      "email": "jhcf@unb.br",
+      "telefone": "+55 (61) 3107-3658",
+      "foto": "/professores/jorge-henrique-cabral-fernandes.jpeg",
+      "perfil": "https://cic.unb.br/professores/87-jhcf"
+    },
+    {
+      "nome": "Leticia Lopes Leite",
+      "slug": "leticia-lopes-leite",
+      "email": "llleite@unb.br",
+      "telefone": "+55 (61) 3107-3687",
+      "foto": "/professores/leticia-lopes-leite.jpg",
+      "perfil": "https://cic.unb.br/professores/88-llleite"
+    },
+    {
+      "nome": "Li Weigang",
+      "slug": "li-weigang",
+      "email": "weigang@unb.br",
+      "telefone": "+55 (61) 3107-3679",
+      "foto": "/professores/li-weigang.png",
+      "perfil": "https://cic.unb.br/professores/89-weigang"
+    },
+    {
+      "nome": "Luís Paulo Faina Garcia",
+      "slug": "luis-paulo-faina-garcia",
+      "email": "luis.garcia@unb.br",
+      "telefone": "+55 (61) 3107-3688",
+      "foto": "/professores/luis-paulo-faina-garcia.jpeg",
+      "perfil": "https://cic.unb.br/professores/90-luis-garcia"
+    },
+    {
+      "nome": "Marcelo Grandi Mandelli",
+      "slug": "marcelo-grandi-mandelli",
+      "email": "mgmandelli@unb.br",
+      "telefone": "+55 (61) 3107-3689",
+      "foto": "/professores/marcelo-grandi-mandelli.jpg",
+      "perfil": "https://cic.unb.br/professores/91-mgmandelli"
+    },
+    {
+      "nome": "Marcelo Ladeira",
+      "slug": "marcelo-ladeira",
+      "email": "mladeira@unb.br",
+      "telefone": "+55 (61) 3107-3658",
+      "foto": "/professores/marcelo-ladeira.jpg",
+      "perfil": "https://cic.unb.br/professores/92-mladeira"
+    },
+    {
+      "nome": "Marcelo Marotta",
+      "slug": "marcelo-marotta",
+      "email": "marcelo.marotta@unb.br",
+      "telefone": "+55 (61) 3107-3687",
+      "foto": "/professores/marcelo-marotta.jpg",
+      "perfil": "https://cic.unb.br/professores/93-marcelo-marotta"
+    },
+    {
+      "nome": "Marcos Fagundes Caetano",
+      "slug": "marcos-fagundes-caetano",
+      "email": "mfcaetano@unb.br",
+      "telefone": "+55 (61) 3107-3681",
+      "foto": "/professores/marcos-fagundes-caetano.jpg",
+      "perfil": "https://cic.unb.br/professores/94-mfcaetano"
+    },
+    {
+      "nome": "Marcus Vinicius Lamar",
+      "slug": "marcus-vinicius-lamar",
+      "email": "lamar@unb.br",
+      "telefone": "+55 (61) 3107-3684",
+      "foto": "/professores/marcus-vinicius-lamar.jpg",
+      "perfil": "https://cic.unb.br/professores/95-lamar"
+    },
+    {
+      "nome": "Maria de Fatima R. Brandao",
+      "slug": "maria-de-fatima-r-brandao",
+      "email": "fatimabrandao@unb.br",
+      "telefone": "+55 (61) 3107-3680",
+      "foto": "/professores/maria-de-fatima-r-brandao.jpg",
+      "perfil": "https://cic.unb.br/professores/96-fatimabrandao"
+    },
+    {
+      "nome": "Maristela Terto de Holanda",
+      "slug": "maristela-terto-de-holanda",
+      "email": "mholanda@unb.br",
+      "telefone": "+55 (61) 3107-3687",
+      "foto": "/professores/maristela-terto-de-holanda.png",
+      "perfil": "https://cic.unb.br/professores/98-mholanda"
+    },
+    {
+      "nome": "Mauricio Ayala Rincon",
+      "slug": "mauricio-ayala-rincon",
+      "email": "ayala@unb.br",
+      "telefone": "+55 (61) 3107-3676",
+      "foto": "/professores/mauricio-ayala-rincon.jpg",
+      "perfil": "https://cic.unb.br/professores/99-ayala"
+    },
+    {
+      "nome": "Patrícia Araújo de Oliveira",
+      "slug": "patricia-araujo-de-oliveira",
+      "email": "patricia.oliveira@unb.br",
+      "telefone": "+55 (61) 3107-3661",
+      "foto": "/professores/patricia-araujo-de-oliveira.png",
+      "perfil": "https://cic.unb.br/professores/143-patricia-araujo-de-oliveira"
+    },
+    {
+      "nome": "Pedro Garcia Freitas",
+      "slug": "pedro-garcia-freitas",
+      "email": "pedro.freitas@unb.br",
+      "telefone": "+55 (61) 3107-3661",
+      "foto": "/professores/pedro-garcia-freitas.jpeg",
+      "perfil": "https://cic.unb.br/professores/109-pedro-garcia-freitas"
+    },
+    {
+      "nome": "Priscila America Solis Mendez",
+      "slug": "priscila-america-solis-mendez",
+      "email": "pris@unb.br",
+      "telefone": "+55 (61) 3107-3685",
+      "foto": "/professores/priscila-america-solis-mendez.jpg",
+      "perfil": "https://cic.unb.br/professores/102-pris"
+    },
+    {
+      "nome": "Ricardo L. de Queiroz",
+      "slug": "ricardo-l-de-queiroz",
+      "email": "queiroz@ieee.org",
+      "telefone": "+55 (61) 3107-3678",
+      "foto": "/professores/ricardo-l-de-queiroz.jpg",
+      "perfil": "https://cic.unb.br/professores/103-queiroz"
+    },
+    {
+      "nome": "Ricardo Pezzuol Jacobi",
+      "slug": "ricardo-pezzuol-jacobi",
+      "email": "jacobi@unb.br",
+      "telefone": "+55 (61) 3107-2264",
+      "foto": "/professores/ricardo-pezzuol-jacobi.jpg",
+      "perfil": "https://cic.unb.br/professores/104-jacobi"
+    },
+    {
+      "nome": "Roberta Barbosa Oliveira",
+      "slug": "roberta-barbosa-oliveira",
+      "email": "roberta.oliveira@unb.br",
+      "telefone": "+55 (61) 3107-3683",
+      "foto": "/professores/roberta-barbosa-oliveira.png",
+      "perfil": "https://cic.unb.br/professores/105-roberta-oliveira"
+    },
+    {
+      "nome": "Roberto Vito Rodrigues Filho",
+      "slug": "roberto-vito-rodrigues-filho",
+      "email": "roberto.filho@unb.br",
+      "telefone": "+55 (61) 3107-3661",
+      "foto": "/professores/roberto-vito-rodrigues-filho.jpg",
+      "perfil": "https://cic.unb.br/professores/142-roberto-vito-rodrigues-filho"
+    },
+    {
+      "nome": "Rodrigo Bonifácio de Almeida",
+      "slug": "rodrigo-bonifacio-de-almeida",
+      "email": "rbonifacio@unb.br",
+      "telefone": "+55 (61) 3107-3682",
+      "foto": "/professores/rodrigo-bonifacio-de-almeida.jpg",
+      "perfil": "https://cic.unb.br/professores/106-rbonifacio"
+    },
+    {
+      "nome": "Thiago Paulo Faleiros",
+      "slug": "thiago-paulo-faleiros",
+      "email": "thiagodepaulo@unb.br",
+      "telefone": "+55 (61) 3107-2272",
+      "foto": "/professores/thiago-paulo-faleiros.jpeg",
+      "perfil": "https://cic.unb.br/professores/108-thiagodepaulo"
+    },
+    {
+      "nome": "Vander Ramos Alves",
+      "slug": "vander-ramos-alves",
+      "email": "valves@unb.br",
+      "telefone": "+55 (61) 3107-3661",
+      "foto": "/professores/vander-ramos-alves.png",
+      "perfil": "https://cic.unb.br/professores/133-valves"
+    },
+    {
+      "nome": "Vinicius Ruela Pereira Borges",
+      "slug": "vinicius-ruela-pereira-borges",
+      "email": "viniciusrpb@unb.br",
+      "telefone": "+55 (61) 3107-2271",
+      "foto": "/professores/vinicius-ruela-pereira-borges.jpg",
+      "perfil": "https://cic.unb.br/professores/110-viniciusrpb"
+    },
+    {
+      "nome": "Wilson Henrique Veneziano",
+      "slug": "wilson-henrique-veneziano",
+      "email": "wilsonhe@unb.br",
+      "telefone": "+55 (61) 3107-3662",
+      "foto": "/professores/wilson-henrique-veneziano.jpg",
+      "perfil": "https://cic.unb.br/professores/111-wilsonhe"
+    },
+    {
+      "nome": "Yuri Cossich Lavinas",
+      "slug": "yuri-cossich-lavinas",
+      "email": "yuri.lavinas@unb.br",
+      "telefone": "+55 (61) 3107-3661",
+      "foto": "/professores/yuri-cossich-lavinas.png",
+      "perfil": "https://cic.unb.br/professores/144-yuri-cossich-lavinas"
+    }
+  ]
+}
