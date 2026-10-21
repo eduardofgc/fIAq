@@ -209,6 +209,23 @@ export function terms(text: string): string[] {
     .filter(term => term.length >= 2 && !STOPWORDS.has(term))
 }
 
+// Variações da mesma palavra ("tranco"/"trancar"/"trancamento",
+// "migrar"/"migracao"): sem isso, "como tranco uma disciplina?" só casava
+// "disciplina" e o guia de trancamento empatava com qualquer outro guia.
+const STEM_LENGTH = 5
+
+function stem(term: string): string {
+  return term.length >= STEM_LENGTH ? term.slice(0, STEM_LENGTH) : term
+}
+
+function stems(words: Iterable<string>): Set<string> {
+  return new Set([...words].map(stem))
+}
+
+function matchesTerm(term: string, words: Set<string>, wordStems: Set<string>): boolean {
+  return words.has(term) || (term.length >= STEM_LENGTH && wordStems.has(stem(term)))
+}
+
 export function isUnbScopedQuestion(question: string): boolean {
   const normalized = normalizeText(question)
   return UNB_SCOPE_TERMS.some(term => normalized.includes(term))
@@ -260,8 +277,10 @@ export function hasEnoughLocalContext(question: string, results: SearchResult[])
 
   const titleTerms = new Set(terms(top.titulo))
   const topTextTerms = new Set(terms(`${top.titulo} ${top.conteudo}`).slice(0, 180))
-  const overlap = [...queryTerms].filter(term => topTextTerms.has(term)).length
-  const titleOverlap = [...queryTerms].filter(term => titleTerms.has(term)).length
+  const topTextStems = stems(topTextTerms)
+  const titleStems = stems(titleTerms)
+  const overlap = [...queryTerms].filter(term => matchesTerm(term, topTextTerms, topTextStems)).length
+  const titleOverlap = [...queryTerms].filter(term => matchesTerm(term, titleTerms, titleStems)).length
   const coverage = overlap / queryTerms.size
 
   if (top.score >= 0.9 && coverage >= 0.5) return true
@@ -321,16 +340,20 @@ export function rankContextResults(question: string, results: SearchResult[]): S
       const title = normalizeText(result.titulo)
       const content = normalizeText(result.conteudo)
       const titleTerms = terms(result.titulo)
+      const titleTermSet = new Set(titleTerms)
+      const titleStems = stems(titleTerms)
       const contentTerms = new Set(terms(result.conteudo).slice(0, 120))
-      const titleOverlap = titleTerms.filter(term => queryTerms.has(term)).length
+      const contentStems = stems(contentTerms)
+      const inTitle = (term: string) => matchesTerm(term, titleTermSet, titleStems)
+      const titleOverlap = [...queryTerms].filter(inTitle).length
       // Substring só pra termo longo: "ru" ou "ti" aparecem dentro de
       // "estrutura", "grupo", "partida"... e casariam com quase tudo.
-      const inContent = (term: string) => contentTerms.has(term)
+      const inContent = (term: string) => matchesTerm(term, contentTerms, contentStems)
         || (term.length >= 4 && content.includes(term))
       const contentOverlap = [...queryTerms].filter(inContent).length
       const missingTitleTerms = titleTerms.filter(term => !queryTerms.has(term)).length
       const totalOverlap = [...queryTerms]
-        .filter(term => titleTerms.includes(term) || inContent(term))
+        .filter(term => inTitle(term) || inContent(term))
         .length
       const coverage = totalOverlap / queryTerms.size
       const titleCoverage = titleOverlap / queryTerms.size

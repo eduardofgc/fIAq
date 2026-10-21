@@ -478,7 +478,8 @@ async function persistFeedback(
   question: Message,
   answer: Message,
   rating: 'helpful' | 'unhelpful',
-  webSearchRequested: boolean
+  webSearchRequested: boolean,
+  webSearchReason: Message['webSearchReason']
 ) {
   try {
     await fetch('/api/chat/feedback', {
@@ -490,7 +491,7 @@ async function persistFeedback(
         rating,
         sources: answer.sources ?? [],
         webSearchRequested,
-        webSearchReason: answer.webSearchReason
+        webSearchReason
       })
     })
   } catch {
@@ -549,7 +550,15 @@ export async function rateMessage(messageId: number, rating: 'helpful' | 'unhelp
   const shouldRequestWebAnswer = rating === 'unhelpful' && !answer.webEnhanced
 
   updateAssistantMessage(messageId, { feedback: rating })
-  await persistFeedback(question, answer, rating, Boolean(answer.webEnhanced) || shouldRequestWebAnswer)
+  // Resposta da base avaliada como ruim ainda não tem motivo de busca web; o
+  // servidor recusa (400) busca web sem motivo, e o feedback se perdia.
+  await persistFeedback(
+    question,
+    answer,
+    rating,
+    Boolean(answer.webEnhanced) || shouldRequestWebAnswer,
+    shouldRequestWebAnswer ? 'feedback_negativo' : answer.webSearchReason
+  )
 
   if (shouldRequestWebAnswer) {
     await requestWebAnswer(question, answer)
