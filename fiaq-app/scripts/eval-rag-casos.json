@@ -59,5 +59,10 @@
   { "pergunta": "onde eu reclamo do atendimento ou da infraestrutura?", "esperado": ["como-encaminho-elogio-reclamacao-sobre-infraestrutura-ensino-atendimento-procedimentos-etc", "crawl-ouvidoria-unb-br-como-registrar-manifestacao"] },
   { "pergunta": "tem carga horária mínima de atividades complementares?", "esperado": ["existe-carga-horaria-minima-de-atividades-complementares"] },
   { "historico": ["qual o email do professor Bordim?"], "pergunta": "e o telefone dele?", "esperado": ["professores-cic"], "web": false },
-  { "historico": ["qual o email do professor Bordim?"], "pergunta": "e como faço matrícula em estágio obrigatório?", "esperado": ["como-faco-matricula-em-estagio-obrigatorio", "crawl-deg-unb-br-guia-estagio"], "web": false }
+  { "historico": ["qual o email do professor Bordim?"], "pergunta": "e como faço matrícula em estágio obrigatório?", "esperado": ["como-faco-matricula-em-estagio-obrigatorio", "crawl-deg-unb-br-guia-estagio"], "web": false },
+  { "pergunta": "qual o email do coordenador do cic?", "esperado": ["gestao-cic"], "web": false },
+  { "pergunta": "quem é o chefe do departamento de computação?", "esperado": ["gestao-cic"], "web": false },
+  { "pergunta": "qual o email do drummond?", "esperado": ["professores-cic"], "web": false },
+  { "pergunta": "quem é o presidente da comissão de estágio do CIC e qual o email?", "esperado": ["comissoes-cic"], "web": false },
+  { "pergunta": "quem faz parte do NDE de engenharia de computação?", "esperado": ["comissoes-cic"], "web": false }
 ]

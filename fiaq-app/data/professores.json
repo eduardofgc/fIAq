@@ -394,5 +394,623 @@
       "foto": "/professores/yuri-cossich-lavinas.png",
       "perfil": "https://cic.unb.br/professores/144-yuri-cossich-lavinas"
     }
+  ],
+  "comissoesFonte": "https://cic.unb.br/administracao/comissoes",
+  "comissoes": [
+    {
+      "id": "comissao-de-acompanhamento-dos-alunos-com-necessidades-especiais",
+      "nome": "Comissão de Acompanhamento dos Alunos com Necessidades Especiais",
+      "membros": [
+        {
+          "texto": "Roberto Vito Rodrigues Filho (presidente)",
+          "email": "roberto.filho@unb.br",
+          "telefone": "+55 (61) 3107-3661"
+        },
+        {
+          "texto": "Maristela Terto Holanda",
+          "email": "mholanda@unb.br",
+          "telefone": "+55 (61) 3107-3687"
+        },
+        {
+          "texto": "Ricardo Lopes de Queiroz",
+          "email": "queiroz@ieee.org",
+          "telefone": "+55 (61) 3107-3678"
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-analise-de-merito",
+      "nome": "Comissão de Análise de Mérito",
+      "membros": [
+        {
+          "texto": "Marcos Fagundes Caetano (presidente)",
+          "email": "mfcaetano@unb.br",
+          "telefone": "+55 (61) 3107-3681"
+        },
+        {
+          "texto": "Marcelo Antônio Marotta",
+          "email": "marcelo.marotta@unb.br",
+          "telefone": "+55 (61) 3107-3687"
+        },
+        {
+          "texto": "Marcus Vinicius Lamar",
+          "email": "lamar@unb.br",
+          "telefone": "+55 (61) 3107-3684"
+        },
+        {
+          "texto": "João Paulo Couto de Oliveira",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Matheus Gabriel da Silva Rodrigues (discente)",
+          "email": "",
+          "telefone": ""
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-aproveitamento-de-estudos",
+      "nome": "Comissão de Aproveitamento de Estudos",
+      "membros": [
+        {
+          "texto": "Camilo Chang Dorea (presidente)",
+          "email": "camilodorea@unb.br",
+          "telefone": "+55 (61) 3107-2267"
+        },
+        {
+          "texto": "Jorge C. Lucero",
+          "email": "lucero@unb.br",
+          "telefone": "+55 (61) 3107-3678"
+        },
+        {
+          "texto": "Patrícia Araújo de Oliveira",
+          "email": "patricia.oliveira@unb.br",
+          "telefone": "+55 (61) 3107-3661"
+        },
+        {
+          "texto": "Leticia Lopes Leite",
+          "email": "llleite@unb.br",
+          "telefone": "+55 (61) 3107-3687"
+        }
+      ]
+    },
+    {
+      "id": "comissao-avaliadora-responsavel-pela-analise-das-progressoes-de-docentes-adjuntos-da-carreira-do-magisterio-superior-do-ie",
+      "nome": "Comissão Avaliadora responsável pela análise das progressões de docentes adjuntos da carreira do Magistério Superior do IE",
+      "membros": [
+        {
+          "texto": "Ricardo Jacobi (Departamento de Ciência da Computação), 2º mandato",
+          "email": "jacobi@unb.br",
+          "telefone": "+55 (61) 3107-2264"
+        },
+        {
+          "texto": "Eduardo Alchieri (Departamento de Ciência da Computação), 2º mandato",
+          "email": "alchieri@unb.br",
+          "telefone": "+55 (61) 3107-2270"
+        },
+        {
+          "texto": "Suplente: Carla Maria Chagas e Cavalcante Koike (Departamento de Ciência da Computação), membro suplente - 1 Mandato",
+          "email": "ckoike@unb.br",
+          "telefone": "+55 (61) 3107-3684"
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-bolsas-do-ppgi",
+      "nome": "Comissão de Bolsas do PPGI",
+      "membros": [
+        {
+          "texto": "Edna Dias Canedo",
+          "email": "ednacanedo@unb.br",
+          "telefone": "+55 (61) 3107-3691"
+        },
+        {
+          "texto": "Eduardo Adílio Pelinson Alchieri",
+          "email": "alchieri@unb.br",
+          "telefone": "+55 (61) 3107-2270"
+        },
+        {
+          "texto": "Vinícius Ruela Pereira Borges",
+          "email": "viniciusrpb@unb.br",
+          "telefone": "+55 (61) 3107-2271"
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-comunicacao",
+      "nome": "Comissão de Comunicação",
+      "membros": [
+        {
+          "texto": "Marcelo Grandi Mandelli (presidente)",
+          "email": "mgmandelli@unb.br",
+          "telefone": "+55 (61) 3107-3689"
+        },
+        {
+          "texto": "Daniel de Paula Porto",
+          "email": "daniel.porto@unb.br",
+          "telefone": "+55 (61) 3107-3661"
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-estagio",
+      "nome": "Comissão de Estágio",
+      "membros": [
+        {
+          "texto": "Carla Denise Castanho",
+          "email": "carlacastanho@unb.br",
+          "telefone": "+55 (61) 3107-3662"
+        },
+        {
+          "texto": "Jan Mendonça Correa",
+          "email": "jancorrea@unb.br",
+          "telefone": "+55 (61) 3107-3683"
+        },
+        {
+          "texto": "Marcelo Ladeira",
+          "email": "mladeira@unb.br",
+          "telefone": "+55 (61) 3107-3658"
+        },
+        {
+          "texto": "Genaina Nunes Rodrigues",
+          "email": "genaina@unb.br",
+          "telefone": "+55 (61) 3107-3682"
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-extensao",
+      "nome": "Comissão de Extensão",
+      "membros": [
+        {
+          "texto": "Leticia Lopes Leite (presidente)",
+          "email": "llleite@unb.br",
+          "telefone": "+55 (61) 3107-3687"
+        },
+        {
+          "texto": "Marcelo Antonio Marotta",
+          "email": "marcelo.marotta@unb.br",
+          "telefone": "+55 (61) 3107-3687"
+        },
+        {
+          "texto": "Aleteia Patrícia Favacho De Araújo Von Paumgartten",
+          "email": "aleteia@unb.br",
+          "telefone": "+55 (61) 3107-3687"
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-gestao",
+      "nome": "Comissão de Gestão",
+      "membros": [
+        {
+          "texto": "Chefia do CIC: Edna Dias Canedo",
+          "email": "ednacanedo@unb.br",
+          "telefone": "+55 (61) 3107-3691"
+        },
+        {
+          "texto": "Subchefia do CIC: Eduardo Adilio Pelinson Alchieri",
+          "email": "alchieri@unb.br",
+          "telefone": "+55 (61) 3107-2270"
+        },
+        {
+          "texto": "Coordenação do PPGI: Ricardo Jacobi",
+          "email": "jacobi@unb.br",
+          "telefone": "+55 (61) 3107-2264"
+        },
+        {
+          "texto": "Coordenação do PPCA: Gladston Luiz da Silva",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Coordenação da Ciência da Computação: Marcelo Mandelli",
+          "email": "mgmandelli@unb.br",
+          "telefone": "+55 (61) 3107-3689"
+        },
+        {
+          "texto": "Coordenação da Licenciatura em Computação: Jorge Henrique Cabral Fernandes",
+          "email": "jhcf@unb.br",
+          "telefone": "+55 (61) 3107-3658"
+        },
+        {
+          "texto": "Coordenação da Engenharia de Computação: João Luiz Azevedo de Carvalho",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Coordenação de Extensão: Leticia Lopes Leite",
+          "email": "llleite@unb.br",
+          "telefone": "+55 (61) 3107-3687"
+        },
+        {
+          "texto": "Coordenação do LINF: Marcelo Antônio Marotta",
+          "email": "marcelo.marotta@unb.br",
+          "telefone": "+55 (61) 3107-3687"
+        },
+        {
+          "texto": "Coordenação da secretaria: João Paulo Couto de Oliveira",
+          "email": "",
+          "telefone": ""
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-infraestrutura-de-ti",
+      "nome": "Comissão de Infraestrutura de TI",
+      "membros": [
+        {
+          "texto": "Jacir Luiz Bordim (presidente)",
+          "email": "bordim@unb.br",
+          "telefone": "+55 (61) 3107-3681"
+        },
+        {
+          "texto": "Priscila Solis Barreto",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Bruno Macchiavello",
+          "email": "macchiavello@unb.br",
+          "telefone": "+55 (61) 3107-3682"
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-inteligencia-artificial",
+      "nome": "Comissão de Inteligência Artificial",
+      "membros": [
+        {
+          "texto": "Ricardo L de Queiroz (presidente)",
+          "email": "queiroz@ieee.org",
+          "telefone": "+55 (61) 3107-3678"
+        },
+        {
+          "texto": "Alba Cristina Magalhaes Alves de Melo",
+          "email": "alves@unb.br",
+          "telefone": "+55 (61) 3107-3679"
+        },
+        {
+          "texto": "Li Weigang",
+          "email": "weigang@unb.br",
+          "telefone": "+55 (61) 3107-3679"
+        },
+        {
+          "texto": "Marcelo Marotta",
+          "email": "marcelo.marotta@unb.br",
+          "telefone": "+55 (61) 3107-3687"
+        },
+        {
+          "texto": "Mauricio Ayala Rincon",
+          "email": "ayala@unb.br",
+          "telefone": "+55 (61) 3107-3676"
+        },
+        {
+          "texto": "Maria de Fatima R. Brandao",
+          "email": "fatimabrandao@unb.br",
+          "telefone": "+55 (61) 3107-3680"
+        },
+        {
+          "texto": "Thiago Paulo Faleiros",
+          "email": "thiagodepaulo@unb.br",
+          "telefone": "+55 (61) 3107-2272"
+        },
+        {
+          "texto": "Israel Teles Bandeira (Representante Discente)",
+          "email": "",
+          "telefone": ""
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-planejamento-das-atividades-complementar",
+      "nome": "Comissão de Planejamento das Atividades Complementar",
+      "membros": [
+        {
+          "texto": "Vinicius Ruela Pereira Borges (presidente)",
+          "email": "viniciusrpb@unb.br",
+          "telefone": "+55 (61) 3107-2271"
+        },
+        {
+          "texto": "Pedro Garcia Freitas",
+          "email": "pedro.freitas@unb.br",
+          "telefone": "+55 (61) 3107-3661"
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-pos-graduacao-ppca",
+      "nome": "Comissão de Pós-Graduação - PPCA",
+      "membros": [
+        {
+          "texto": "Gladston Luiz da Silva (coordenador)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Marcelo Ladeira (coordenador adjunto)",
+          "email": "mladeira@unb.br",
+          "telefone": "+55 (61) 3107-3658"
+        },
+        {
+          "texto": "Rodrigo Bonifácio de Almeida (coordenador da linha de pesquisa em Engenharia de Software)",
+          "email": "rbonifacio@unb.br",
+          "telefone": "+55 (61) 3107-3682"
+        },
+        {
+          "texto": "Ari Melo Mariano (coordenador da linha de pesquisa em Gestão de Risco)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "João José Costa Gondim (coordenador da linha de pesquisa em Ciência dos Dados)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Leonardo Rodrigo Ferreira (representante estudantil)",
+          "email": "",
+          "telefone": ""
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-pos-graduacao-ppgi",
+      "nome": "Comissão de Pós-Graduação - PPGI",
+      "membros": [
+        {
+          "texto": "Rodrigo Bonifácio de Almeida (Coordenador)",
+          "email": "rbonifacio@unb.br",
+          "telefone": "+55 (61) 3107-3682"
+        },
+        {
+          "texto": "Claudia Nalon (Coordenadora adjunta)",
+          "email": "nalon@unb.br",
+          "telefone": "+55 (61) 3107-3677"
+        },
+        {
+          "texto": "Alba Cristina Magalhães Alves de Melo",
+          "email": "alves@unb.br",
+          "telefone": "+55 (61) 3107-3679"
+        },
+        {
+          "texto": "Eduardo Adílio Pelinson Alchieri",
+          "email": "alchieri@unb.br",
+          "telefone": "+55 (61) 3107-2270"
+        },
+        {
+          "texto": "Luis Paulo Faina Garcia",
+          "email": "luis.garcia@unb.br",
+          "telefone": "+55 (61) 3107-3688"
+        },
+        {
+          "texto": "Ricardo Lopes de Queiroz",
+          "email": "queiroz@ieee.org",
+          "telefone": "+55 (61) 3107-3678"
+        }
+      ]
+    },
+    {
+      "id": "comissao-de-revalidacao-de-diplomas",
+      "nome": "Comissão de Revalidação de Diplomas",
+      "membros": [
+        {
+          "texto": "Carla Denise Castanho (presidente)",
+          "email": "carlacastanho@unb.br",
+          "telefone": "+55 (61) 3107-3662"
+        },
+        {
+          "texto": "Fernando Antônio de Araújo Chacon de Albuquerque",
+          "email": "nando@unb.br",
+          "telefone": "+55 (61) 3107-3688"
+        },
+        {
+          "texto": "Flavio Leonardo Cavalcanti Moura",
+          "email": "flaviomoura@unb.br",
+          "telefone": "+55 (61) 3107-3676"
+        }
+      ]
+    },
+    {
+      "id": "nucleo-docente-estruturante-nde-bacharelado-em-ciencia-da-computacao",
+      "nome": "Núcleo Docente Estruturante (NDE) - Bacharelado em Ciência da Computação",
+      "membros": [
+        {
+          "texto": "Coordenador do BCC: Marcelo Grandi Mandelli",
+          "email": "mgmandelli@unb.br",
+          "telefone": "+55 (61) 3107-3689"
+        },
+        {
+          "texto": "Representante da área de Matemática da Computação: Marcelo Ladeira",
+          "email": "mladeira@unb.br",
+          "telefone": "+55 (61) 3107-3658"
+        },
+        {
+          "texto": "Representante da área de Metodologia e Técnicas da Computação: André Costa Drummond",
+          "email": "andred@unb.br",
+          "telefone": "+55 (61) 3107-2269"
+        },
+        {
+          "texto": "Representante da área de Sistemas de Computação: Ricardo Pezzuol Jacobi",
+          "email": "jacobi@unb.br",
+          "telefone": "+55 (61) 3107-2264"
+        },
+        {
+          "texto": "Representante da área de Teoria da Computação: Flávio Leonardo Cavalcanti Moura",
+          "email": "flaviomoura@unb.br",
+          "telefone": "+55 (61) 3107-3676"
+        }
+      ]
+    },
+    {
+      "id": "nucleo-docente-estruturante-nde-bacharelado-em-inteligencia-artificial",
+      "nome": "Núcleo Docente Estruturante (NDE) - Bacharelado em Inteligencia Artificial",
+      "membros": [
+        {
+          "texto": "Guilherme Rodrigues (EST) (coordenador)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Flávio Vidal",
+          "email": "fbvidal@unb.br",
+          "telefone": "+55 (61) 3107-3685"
+        },
+        {
+          "texto": "Edison Ishikawa",
+          "email": "ishikawa@unb.br",
+          "telefone": "+55 (61) 3107-2270"
+        },
+        {
+          "texto": "Luis Vinha (EST)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Thais Rodrigues (EST)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Alberto Ohashi (MAT)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Luis Lucinger (MAT)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Daniel Guerreiro (FT)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Marcelino Andrade (FT)",
+          "email": "",
+          "telefone": ""
+        }
+      ]
+    },
+    {
+      "id": "nucleo-docente-estruturante-nde-engenharia-de-computacao",
+      "nome": "Núcleo Docente Estruturante (NDE) - Engenharia de Computação",
+      "membros": [
+        {
+          "texto": "Guilherme Ramos (coordenador)",
+          "email": "gnramos@unb.br",
+          "telefone": "+55 (61) 3107-2269"
+        },
+        {
+          "texto": "Carla Koike",
+          "email": "ckoike@unb.br",
+          "telefone": "+55 (61) 3107-3684"
+        },
+        {
+          "texto": "Daniel de Paula Porto",
+          "email": "daniel.porto@unb.br",
+          "telefone": "+55 (61) 3107-3661"
+        },
+        {
+          "texto": "Marcos Caetano",
+          "email": "mfcaetano@unb.br",
+          "telefone": "+55 (61) 3107-3681"
+        },
+        {
+          "texto": "Daniel Café (ENE)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Eduardo Peixoto (ENE)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "João Luiz Carvalho (ENE)",
+          "email": "",
+          "telefone": ""
+        }
+      ]
+    },
+    {
+      "id": "nucleo-docente-estruturante-nde-engenharia-mecatronica",
+      "nome": "Núcleo Docente Estruturante (NDE) - Engenharia Mecatrônica",
+      "membros": [
+        {
+          "texto": "Marcus Vinícius Lamar (coordenador)",
+          "email": "lamar@unb.br",
+          "telefone": "+55 (61) 3107-3684"
+        },
+        {
+          "texto": "Pedro Garcia de Freitas",
+          "email": "pedro.freitas@unb.br",
+          "telefone": "+55 (61) 3107-3661"
+        },
+        {
+          "texto": "Henrique Cezar Ferreira (ENE)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "João Yoshiyuki Ishihara (ENE)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Jones Yudi (ENM)",
+          "email": "",
+          "telefone": ""
+        },
+        {
+          "texto": "Walter Britto (ENM)",
+          "email": "",
+          "telefone": ""
+        }
+      ]
+    },
+    {
+      "id": "nucleo-docente-estruturante-nde-licenciatura-em-computacao",
+      "nome": "Núcleo Docente Estruturante (NDE) - Licenciatura em Computação",
+      "membros": [
+        {
+          "texto": "Maria de Fátima Ramos Brandão (presidente)",
+          "email": "fatimabrandao@unb.br",
+          "telefone": "+55 (61) 3107-3680"
+        },
+        {
+          "texto": "Carla Koike",
+          "email": "ckoike@unb.br",
+          "telefone": "+55 (61) 3107-3684"
+        },
+        {
+          "texto": "Edison Ishikawa",
+          "email": "ishikawa@unb.br",
+          "telefone": "+55 (61) 3107-2270"
+        },
+        {
+          "texto": "Fernando Albuquerque",
+          "email": "nando@unb.br",
+          "telefone": "+55 (61) 3107-3688"
+        },
+        {
+          "texto": "Jonathan Rosa Moreira",
+          "email": "jonathan.moreira@unb.br",
+          "telefone": "+55 (61) 3107-3661"
+        },
+        {
+          "texto": "Leticia Leite Lopes",
+          "email": "llleite@unb.br",
+          "telefone": "+55 (61) 3107-3687"
+        },
+        {
+          "texto": "Jorge Henrique Cabral Fernandes",
+          "email": "jhcf@unb.br",
+          "telefone": "+55 (61) 3107-3658"
+        }
+      ]
+    }
   ]
 }

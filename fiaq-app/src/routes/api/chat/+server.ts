@@ -12,6 +12,7 @@ import {
   selectLocalContext
 } from '../../../../server/utils/chatRetrieval'
 import { buildFirecrawlContext, getFirecrawlIncludeDomains, searchFirecrawl } from '../../../../server/utils/firecrawl'
+import { contatosCitados } from '../../../../server/utils/professores'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -309,6 +310,13 @@ export const POST: RequestHandler = async (event) => {
           domains: webDomains
         })
       }
+    }
+
+    // Trecho que cita professor pelo nome (comissões, orientadores...) ganha o
+    // contato dele; a resposta de contato já vem com e-mail e telefone.
+    if (!results.some(result => ['professores-cic', 'gestao-cic', 'comissoes-cic'].includes(result.id))) {
+      const contatos = contatosCitados(context, question)
+      if (contatos) context = `${context}\n\n${contatos}`
     }
 
     // Só quando a base local entrou no contexto: se a web a substituiu, os links
