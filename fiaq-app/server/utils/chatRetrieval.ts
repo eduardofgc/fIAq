@@ -1,5 +1,6 @@
 import { embedInfo } from './llmProvider'
 import { buscarRag, buscarRagPorTexto, buscarRagPorTextoNoBanco, type SearchResult } from '../repositorios/rag'
+import { buscarProfessores } from './professores'
 
 // Busca e seleção de contexto do chat (/api/chat). Fica fora da rota para que
 // o script de avaliação (scripts/eval-rag.ts) rode exatamente o mesmo código.
@@ -61,11 +62,51 @@ export function buildCompactContext(results: SearchResult[]): string {
     : 'Nenhuma informação relevante encontrada na base de dados.'
 }
 
+export interface CitedLink {
+  titulo: string
+  url: string
+}
+
+// Texto de link que sozinho não diz nada ("aqui", "este vídeo"): o chip usa o
+// título do trecho no lugar.
+const VAGUE_LINK_TEXT = /^(aqui|clique aqui|modelos aqui|descritos aqui|este video|este link|link|veja)$/
+
+// Links que o trecho principal cita. O corpo da resposta não pode ter URL e o
+// contexto vai sem links (stripLinks), então sem isto o aluno lia "veja o
+// regulamento do seu curso" sem ter onde clicar. Muita resposta do FAQ é isso.
+export function extractCitedLinks(result: SearchResult | undefined, limit = 5): CitedLink[] {
+  if (!result) return []
+
+  const links: CitedLink[] = []
+  const seen = new Set([result.url])
+
+  for (const match of result.conteudo.matchAll(/\[([^\]]+)\]\(([^)\s]+)\)/g)) {
+    // O FAQ tem um link quebrado no formato "https://site/[https://outro/]".
+    const raw = match[2]!.match(/\[(https?:\/\/[^\]]+)\]/)?.[1] ?? match[2]!
+    let url: string
+    try {
+      const parsed = new URL(raw)
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') continue
+      url = parsed.href
+    } catch {
+      continue
+    }
+    if (seen.has(url)) continue
+    seen.add(url)
+
+    const text = match[1]!.replace(/\s+/g, ' ').trim()
+    links.push({ titulo: VAGUE_LINK_TEXT.test(normalizeText(text)) ? result.titulo : text, url })
+    if (links.length >= limit) break
+  }
+
+  return links
+}
+
 export const STOPWORDS = new Set([
   'a', 'ao', 'aos', 'as', 'como', 'com', 'da', 'das', 'de', 'do', 'dos', 'e',
   'em', 'essa', 'essas', 'esse', 'esses', 'esta', 'estas', 'este', 'estes',
-  'eu', 'faco', 'fazer', 'ha', 'isso', 'ja', 'la', 'lo', 'me', 'na', 'no', 'o',
-  'os', 'ou', 'para', 'por', 'posso', 'pra', 'pro', 'quais', 'qual', 'quando',
+  'entre', 'eu', 'faco', 'fazer', 'ha', 'isso', 'ja', 'la', 'lo', 'me', 'na', 'no', 'o',
+  'os', 'ou', 'para', 'pode', 'por', 'posso', 'pra', 'pro', 'quais', 'qual', 'quando',
   'que', 'quero', 'sao', 'se', 'sobre', 'tu', 'um', 'uma', 'unb'
 ])
 
@@ -203,9 +244,19 @@ export function normalizeText(text: string): string {
     .trim()
 }
 
+// Nomes diferentes para a mesma coisa: o FAQ fala em "Projeto Final" e o aluno
+// pergunta de "TCC".
+const SYNONYMS: Array<[RegExp, string]> = [
+  [/\b(projeto final|trabalho de conclusao de curso)\b/g, 'tcc']
+]
+
 export function terms(text: string): string[] {
-  return normalizeText(text)
-    .split(/\s+/)
+  let normalized = normalizeText(text)
+  for (const [pattern, canonical] of SYNONYMS) normalized = normalized.replace(pattern, canonical)
+
+  // Hífen separa: "não-obrigatório" no título tem que casar com "não obrigatório".
+  return normalized
+    .split(/[\s-]+/)
     .filter(term => term.length >= 2 && !STOPWORDS.has(term))
 }
 
@@ -232,7 +283,8 @@ export function isUnbScopedQuestion(question: string): boolean {
 }
 
 export function isFreshnessSensitiveQuestion(question: string): boolean {
-  const normalized = normalizeText(question)
+  // "...e agora?" é "o que eu faço?", não pedido de notícia.
+  const normalized = normalizeText(question).replace(/\be agora\b/g, '')
   return FRESHNESS_SENSITIVE_TERMS.some(term => normalized.includes(normalizeText(term)))
 }
 
@@ -301,6 +353,10 @@ export function hasEnoughLocalContext(question: string, results: SearchResult[])
 // montada com a base local, não bastou. Repetir os mesmos trechos não ajuda.
 export function isDetailFollowUp(question: string): boolean {
   if (!isLikelyFollowUp(question)) return false
+  // "e como faço matrícula em estágio obrigatório?" começa como continuação, mas
+  // traz assunto próprio: é pergunta nova, e a base local responde.
+  const subjectTerms = terms(question).filter(term => !GENERIC_CONTEXT_TERMS.has(term))
+  if (subjectTerms.length >= 2) return false
 
   return /\b(detalh\w*|passo a passo|passos|etapas|orientac\w*|procedimento\w*|prossegu\w*|como (eu )?(faco|fazer|solicito|solicitar|peco|pedir|dou|procedo|proceder))\b/
     .test(normalizeText(question))
@@ -323,8 +379,9 @@ export function mergeSearchResults(groups: Array<SearchResult[] | null | undefin
 }
 
 // "como" + verbo na 1ª pessoa ou no infinitivo ("como tranco", "como migrar",
-// "como volto"), fora formas que não pedem procedimento ("como são", "como isso").
-export const PROCEDURAL_QUESTION = /\b(como (eu )?(?!sao\b|isso\b|no\b|do\b)\w+(o|ar|er|ir)|passo a passo|procedimento|o que (eu )?preciso fazer)\b/
+// "como volto"), fora formas que não pedem procedimento ("como são", "como isso")
+// e o "como" de equivalência ("vale como obrigatório", "conta como optativa").
+export const PROCEDURAL_QUESTION = /\b((?<!\b(?:vale|valer|conta|contar|serve|servir|entra|entrar|aproveitar|aproveitado|aproveitada) )como (eu )?(?!sao\b|isso\b|no\b|do\b)\w+(o|ar|er|ir)|passo a passo|procedimento|o que (eu )?preciso fazer)\b/
 export const PROCEDURAL_TITLE = /\b(passo a passo|como solicitar|como fazer|como acessar|como usar|guia)\b/
 
 export function rankContextResults(question: string, results: SearchResult[]): SearchResult[] {
@@ -458,8 +515,23 @@ export function selectLocalContext(
   searchQuestion: string,
   rawResults: SearchResult[]
 ): LocalContextSelection {
-  const results = rankContextResults(searchQuestion, rawResults).slice(0, RAG_RESULT_LIMIT)
   const detailFollowUp = isDetailFollowUp(question)
+
+  // Contato de professor sai da lista oficial do CIC, sozinho: os trechos do
+  // RAG que vêm junto não falam do professor e só poluiriam a resposta.
+  const professores = buscarProfessores(question, searchQuestion)
+  if (professores) {
+    return {
+      results: [professores],
+      localContextEnough: true,
+      scopedToUnb: true,
+      freshnessSensitive: false,
+      detailFollowUp,
+      needsWebFallback: false
+    }
+  }
+
+  const results = rankContextResults(searchQuestion, rawResults).slice(0, RAG_RESULT_LIMIT)
 
   return {
     results,

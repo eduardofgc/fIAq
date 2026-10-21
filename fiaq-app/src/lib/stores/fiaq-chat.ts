@@ -6,7 +6,8 @@ export interface Source {
   id: string
   titulo: string
   url: string
-  kind?: 'rag' | 'web' | 'official'
+  // 'link': link citado dentro de um trecho da base (ex.: regulamento no SIGAA).
+  kind?: 'rag' | 'web' | 'official' | 'link'
   description?: string
 }
 
@@ -60,7 +61,7 @@ function normalizeSource(source: Partial<Source>): Source | null {
   const url = String(source.url || '').trim()
   if (!titulo && !url) return null
 
-  const kind = source.kind === 'web' || source.kind === 'official' || source.kind === 'rag'
+  const kind = source.kind === 'web' || source.kind === 'official' || source.kind === 'rag' || source.kind === 'link'
     ? source.kind
     : 'rag'
 

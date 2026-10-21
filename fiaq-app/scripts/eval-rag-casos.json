@@ -39,5 +39,25 @@
     "pergunta": "quais são essas orientações detalhadas?",
     "esperado": ["crawl-saa-unb-br-guia-migracao-estrutura-curricular"],
     "web": true
-  }
+  },
+  { "pergunta": "qual o email do professor Marcelo Ladeira?", "esperado": ["professores-cic"], "web": false },
+  { "pergunta": "telefone da professora Genaína", "esperado": ["professores-cic"], "web": false },
+  { "pergunta": "quem são os professores do CIC?", "esperado": ["professores-cic"], "web": false },
+  { "pergunta": "preciso fazer estágio obrigatório se já trabalho na área?", "esperado": ["eu-trabalho-na-area-de-computacao-preciso-fazer-estagio-obrigatorio"] },
+  { "pergunta": "estágio não obrigatório pode valer como obrigatório?", "esperado": ["posso-aproveitar-o-estagio-nao-obrigatorio-como-obrigatorio"] },
+  { "pergunta": "reprovar em optativa conta pro desligamento?", "esperado": ["reprovacao-em-componente-optatorio-conta-para-o-desligamento"] },
+  { "pergunta": "reprovação em obrigatória no verão conta pro desligamento?", "esperado": ["reprovacao-em-componente-obrigatorio-durante-o-periodo-de-verao-conta-para-o-desligamento"] },
+  { "pergunta": "depois de migrar de currículo dá pra voltar pro antigo?", "esperado": ["mudei-de-ideia-posso-voltar-para-a-estrutura-curricular-anterior", "crawl-saa-unb-br-guia-migracao-estrutura-curricular"] },
+  { "pergunta": "as horas de extensão que já fiz contam se eu migrar?", "esperado": ["ja-integralizei-horas-de-extensao-elas-serao-aproveitadas-em-caso-de-migracao"] },
+  { "pergunta": "quem é o coordenador do meu curso?", "esperado": ["quem-esta-atuando-como-coordenador-e-consigo-contato"] },
+  { "pergunta": "como acho um orientador pro TCC?", "esperado": ["como-encontro-um-orientador-de-projeto-final"] },
+  { "pergunta": "quais são as empresas juniores?", "esperado": ["empresas-juniores"] },
+  { "pergunta": "quais atléticas existem no CIC?", "esperado": ["atleticas"] },
+  { "pergunta": "qual a diferença entre optativa e eletiva?", "esperado": ["o-que-sao-componentes-obrigatorios-optativos-e-eletivos"] },
+  { "pergunta": "o enade é obrigatório?", "esperado": ["sou-obrigado-a-fazer-o-enade"] },
+  { "pergunta": "o que eu preciso pra me formar?", "esperado": ["o-que-eu-preciso-fazer-para-me-formar"] },
+  { "pergunta": "onde eu reclamo do atendimento ou da infraestrutura?", "esperado": ["como-encaminho-elogio-reclamacao-sobre-infraestrutura-ensino-atendimento-procedimentos-etc", "crawl-ouvidoria-unb-br-como-registrar-manifestacao"] },
+  { "pergunta": "tem carga horária mínima de atividades complementares?", "esperado": ["existe-carga-horaria-minima-de-atividades-complementares"] },
+  { "historico": ["qual o email do professor Bordim?"], "pergunta": "e o telefone dele?", "esperado": ["professores-cic"], "web": false },
+  { "historico": ["qual o email do professor Bordim?"], "pergunta": "e como faço matrícula em estágio obrigatório?", "esperado": ["como-faco-matricula-em-estagio-obrigatorio", "crawl-deg-unb-br-guia-estagio"], "web": false }
 ]

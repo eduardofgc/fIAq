@@ -1,6 +1,7 @@
 <script lang="ts">
   import FiaqIcon from '$lib/components/FiaqIcon.svelte'
   import type { Source } from '$lib/stores/fiaq-chat'
+  import { publicSourceUrl } from '$lib/utils/sourceUrl'
 
   interface Props {
     source: Source
@@ -8,14 +9,7 @@
 
   let { source }: Props = $props()
 
-  const safeUrl = $derived.by(() => {
-    try {
-      const parsed = new URL(source.url ?? '')
-      return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : ''
-    } catch {
-      return ''
-    }
-  })
+  const safeUrl = $derived(publicSourceUrl(source.url))
   const hasUrl = $derived(Boolean(safeUrl))
   const cleanTitle = $derived.by(() => {
     const title = decodeEntities(source.titulo || 'Fonte oficial')
@@ -61,7 +55,7 @@
     class="group flex min-h-10 min-w-0 items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-left text-[#1a2e5a] shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors duration-200 hover:border-[#00a155] hover:bg-emerald-50/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
   >
     <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-[#00a155] ring-1 ring-emerald-100">
-      <FiaqIcon name={source.kind === 'web' ? 'i-lucide-globe-2' : 'i-lucide-book-open'} class="h-3.5 w-3.5" />
+      <FiaqIcon name={source.kind === 'web' ? 'i-lucide-globe-2' : source.kind === 'link' ? 'i-lucide-link' : 'i-lucide-book-open'} class="h-3.5 w-3.5" />
     </span>
 
     {#if source.kind === 'web'}

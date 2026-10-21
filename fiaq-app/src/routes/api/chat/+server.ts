@@ -7,6 +7,7 @@ import { registrarPergunta } from '../../../../server/repositorios/pergunta'
 import {
   buildCompactContext,
   buildSearchQuestion,
+  extractCitedLinks,
   searchRag,
   selectLocalContext
 } from '../../../../server/utils/chatRetrieval'
@@ -25,7 +26,8 @@ interface ResponseSource {
   id: string
   titulo: string
   url: string
-  kind: 'rag' | 'web'
+  // 'link': link citado dentro do trecho da base (ex.: regulamento no SIGAA).
+  kind: 'rag' | 'web' | 'link'
   description?: string
 }
 
@@ -48,7 +50,8 @@ Regras:
 * Não invente URLs, e-mails, prazos, documentos, regras ou procedimentos.
 * Não invente nomes de setores, comissões, conselhos ou siglas de órgãos da UnB que não estejam explicitamente no <contexto>. Se precisar indicar a quem procurar e o órgão certo não estiver claro no contexto, diga algo genérico como "a secretaria ou coordenação do seu curso", sem inventar um nome específico.
 * Quando o contexto vier de sindicato ou veículo jornalístico, trate como indício/contexto externo e recomende confirmar decisões acadêmicas em canais institucionais da UnB.
-* Não escreva URLs no corpo; os links clicáveis aparecem abaixo da resposta.
+* Não escreva URLs no corpo; os links clicáveis aparecem abaixo da resposta. Se o <contexto> listar "Links clicáveis que aparecem logo abaixo da resposta" e mandar consultar uma página ou regulamento, diga ao aluno que o link está logo abaixo. Nunca escreva "clique aqui" nem "neste link": o texto do corpo não é clicável.
+* Nunca mencione o <contexto>, "as informações fornecidas" ou "os trechos": responda como quem conhece o assunto.
 * Não crie seções "Links úteis", "Fontes", "Referências" ou listas de links no corpo da resposta.
 * Não use marcadores de fonte no corpo, como [1], [2] ou [3]; as fontes aparecem automaticamente abaixo da resposta.
 * Use Markdown simples, sem blocos de código e sem emojis.
@@ -305,6 +308,24 @@ export const POST: RequestHandler = async (event) => {
           detail: 'Vou seguir com o contexto local disponível agora.',
           domains: webDomains
         })
+      }
+    }
+
+    // Só quando a base local entrou no contexto: se a web a substituiu, os links
+    // do trecho local não têm a ver com a resposta.
+    if (answerSources.some(source => source.kind === 'rag')) {
+      const citedLinks = extractCitedLinks(results[0])
+      if (citedLinks.length) {
+        answerSources = [
+          ...answerSources,
+          ...citedLinks.map((link, index): ResponseSource => ({
+            id: `link-${index + 1}`,
+            titulo: link.titulo,
+            url: link.url,
+            kind: 'link'
+          }))
+        ]
+        context = `${context}\n\nLinks clicáveis que aparecem logo abaixo da resposta: ${citedLinks.map(link => link.titulo).join('; ')}. Ao citar esses documentos, diga: "o link está logo abaixo da resposta".`
       }
     }
 

@@ -1,5 +1,6 @@
 import type { Message, MessageDraft, Source } from '$lib/stores/fiaq-chat'
 import { cleanAssistantText } from '$lib/utils/assistantText'
+import { publicSourceUrl } from '$lib/utils/sourceUrl'
 
 export type ConversationExportFormat = 'json' | 'txt' | 'md' | 'pdf' | 'xls'
 
@@ -128,15 +129,7 @@ function hasSourceIdentity(source: unknown): source is SourceInput {
 }
 
 function safeSourceUrl(value: unknown): string {
-  const raw = String(value || '').trim()
-  if (!raw) return ''
-
-  try {
-    const url = new URL(raw)
-    return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : ''
-  } catch {
-    return ''
-  }
+  return publicSourceUrl(String(value || '').trim())
 }
 
 function cleanSource(source: SourceInput): Source {
