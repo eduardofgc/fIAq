@@ -41,6 +41,7 @@ const { loadChunks } = await import('../server/utils/vectorStore')
 const { embedQuery } = await import('../server/utils/embeddings')
 const { embedInfo } = await import('../server/utils/llmProvider')
 const { buildSearchQuestion, searchRag, selectLocalContext } = await import('../server/utils/chatRetrieval')
+const { FAQ_DENTRO_DA_GESTAO } = await import('../server/utils/professores')
 
 // O .env.local pode ter sobrescrito ao carregar o provider.
 process.env.DATABASE_URL = ''
@@ -83,6 +84,8 @@ async function embedComCache(text: string): Promise<number[]> {
 }
 
 function corresponde(id: string, esperado: string): boolean {
+  // A resposta de chefia e coordenações traz o texto dessa entrada do FAQ.
+  if (id === 'gestao-cic' && esperado === FAQ_DENTRO_DA_GESTAO) return true
   // Chunks de crawl/pdf têm sufixo "-1", "-2"...; FAQ usa o id direto.
   return id === esperado || (id.startsWith(`${esperado}-`) && /^\d+$/.test(id.slice(esperado.length + 1)))
 }

@@ -194,9 +194,12 @@ Diferenças intencionais em relação ao fluxograma manual:
 ## Lista de professores
 
 A página `/professores`, o bloco "Professores" da home e o chat ("qual o e-mail
-do professor Fulano?") usam
+do professor Fulano?", "quem é o coordenador?", "quem está na comissão de
+estágio?") usam
 `fiaq-app/data/professores.json` e as fotos em `fiaq-app/public/professores/`,
-coletados da página oficial <https://cic.unb.br/professores>. Para atualizar:
+coletados da página oficial <https://cic.unb.br/professores>; as comissões vêm
+de <https://cic.unb.br/administracao/comissoes>, com o e-mail de quem está na
+lista de professores. Para atualizar:
 
 ```bash
 pnpm fetch:professores

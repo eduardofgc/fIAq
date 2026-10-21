@@ -247,10 +247,13 @@ Fluxo:
 1. Recebe historico de mensagens. Em continuacoes ("e como eu dou
    prosseguimento?"), junta as perguntas anteriores na busca.
 2. Busca contexto no banco por vetor e por texto, em paralelo.
-   Se a pergunta cita um professor do CIC (ou pede a lista), `selectLocalContext`
-   responde so com o contato de `data/professores.json`
-   (`server/utils/professores.ts`), sem RAG nem web. Sobrenome sozinho so conta
-   com pista como "professor" ou "e-mail" ("Campos", "Rocha" sao palavras comuns).
+   Se a pergunta cita um professor do CIC (ou pede a lista), quer saber quem
+   esta numa comissao/NDE, ou pede chefia/coordenador ("qual o e-mail do
+   coordenador?"), `selectLocalContext` responde so com os dados de
+   `data/professores.json` (`server/utils/professores.ts`), sem RAG nem web.
+   Sobrenome sozinho so conta com pista como "professor" ou "e-mail" ("Campos",
+   "Rocha" sao palavras comuns). Se um trecho do RAG citar professores pelo nome,
+   a rota junta o contato deles ao contexto (`contatosCitados`).
 3. Reordena (`rankContextResults`) e fica com os 3 melhores trechos. Em
    perguntas de "como + verbo", guias passo a passo ganham prioridade.
 4. `hasEnoughLocalContext` decide se basta. Vai para o Firecrawl (dominios
@@ -416,7 +419,9 @@ Scripts:
   trecho; evite com a cota gratuita).
 - `scripts/test-openrouter.mjs`: valida OpenRouter isolado.
 - `scripts/fetch-professores.mjs` (`pnpm fetch:professores`): coleta nome,
-  e-mail, telefone e foto de <https://cic.unb.br/professores> para
+  e-mail, telefone e foto de <https://cic.unb.br/professores> e as comissoes de
+  <https://cic.unb.br/administracao/comissoes> (inclusive a de Gestao, com
+  chefia e coordenacoes) para
   `data/professores.json` e `public/professores/`, usados pela pagina
   `/professores`, pelo bloco "Professores" da home e pelo chat. Use `cic.unb.br` sem `www`
   (o certificado de `www.cic.unb.br` nao cobre esse nome). Rode de novo quando a
@@ -558,7 +563,8 @@ Resumo das entregas recentes que explicam o estado atual:
   chegarem inteiros ao modelo; e-mails preservados no contexto.
 - Aviso "Consultado do banco de dados (...)" quando a resposta usa so a base
   interna; interface sem travessao.
-- Pagina `/professores` e contato de professor no chat; links citados no FAQ
+- Pagina `/professores`; contato de professor, chefia, coordenacoes e
+  comissoes no chat; links citados no FAQ
   viram chips; `pnpm eval:rag --faq` cobre as 85 perguntas do FAQ.
 
 ## Checklist para finalizar uma tarefa
