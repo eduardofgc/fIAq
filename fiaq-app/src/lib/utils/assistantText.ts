@@ -88,8 +88,18 @@ export function stripReferenceOnlySections(text: string): string {
     : text
 }
 
+// A interface não usa travessão, e o prompt sozinho não garante: o modelo
+// troca "—" por "–" e segue usando. Par de travessões (aparte) vira vírgulas;
+// separador isolado com espaços vira dois-pontos.
+function stripDashes(text: string): string {
+  return text
+    .replace(/[ \t]+[—–][ \t]+([^—–\n]{1,80}?)[ \t]+[—–][ \t]+/g, ', $1, ')
+    .replace(/[ \t]+[—–][ \t]+/g, ': ')
+    .replace(/[—–]/g, '-')
+}
+
 export function cleanAssistantText(text: string): string {
-  return stripNumericCitations(stripReferenceOnlySections(stripInlineLinks(text)))
+  return stripDashes(stripNumericCitations(stripReferenceOnlySections(stripInlineLinks(text))))
     .replace(/\n{3,}/g, '\n\n')
     .trim()
 }

@@ -99,6 +99,10 @@ function pdfSafeText(text: string): string {
     .replace(/[–—]/g, '-')
     .replace(/→/g, '->')
     .replace(/←/g, '<-')
+    // Caminho de menu ("Portal do Discente › Ensino"): a fonte do PDF não tem
+    // esses glifos e o separador sumia.
+    .replace(/[›»]/g, '>')
+    .replace(/[‹«]/g, '<')
     .replace(/≤/g, '<=')
     .replace(/≥/g, '>=')
     .replace(/⁂/g, '')
