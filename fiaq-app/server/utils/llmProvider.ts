@@ -27,6 +27,11 @@ const OPENROUTER_CHAT_MODELS = uniqueModels([
 ])
 const RAW_OPENROUTER_EMBED_MODEL = process.env.OPENROUTER_EMBED_MODEL || OPENROUTER_COMPATIBLE_EMBED_MODEL
 const OPENROUTER_CHAT_TIMEOUT_MS = readPositiveInt(process.env.OPENROUTER_CHAT_TIMEOUT_MS, 22000)
+// O embedding gratuito às vezes não responde nada (nem erro) por minutos. Sem
+// limite, a busca do chat esperava para sempre e nenhuma pergunta era respondida;
+// com ele, a tentativa é refeita e, se falhar de novo, o chat segue só com a
+// busca textual. Resposta normal leva menos de 1 s.
+const OPENROUTER_EMBED_TIMEOUT_MS = readPositiveInt(process.env.OPENROUTER_EMBED_TIMEOUT_MS, 6000)
 const OPENROUTER_CHAT_ATTEMPTS = readPositiveInt(
   process.env.OPENROUTER_CHAT_ATTEMPTS,
   OPENROUTER_CHAT_MODEL === OPENROUTER_ROUTER_CHAT_MODEL ? 2 : 1
@@ -481,7 +486,7 @@ const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
 // O tier free do OpenRouter às vezes devolve respostas transitórias sem o vetor
 // (ou 429). Tentamos algumas vezes com backoff antes de desistir.
 export async function embed(text: string): Promise<number[]> {
-  const attempts = EMBED_PROVIDER === 'openrouter' ? 4 : 1
+  const attempts = EMBED_PROVIDER === 'openrouter' ? 2 : 1
   let lastErr: unknown
 
   for (let i = 0; i < attempts; i++) {
@@ -500,7 +505,8 @@ async function embedOnce(text: string): Promise<number[]> {
     const res = await fetch(`${OPENROUTER_URL}/embeddings`, {
       method: 'POST',
       headers: openRouterHeaders(),
-      body: JSON.stringify({ model: OPENROUTER_EMBED_MODEL, input: text })
+      body: JSON.stringify({ model: OPENROUTER_EMBED_MODEL, input: text }),
+      signal: AbortSignal.timeout(OPENROUTER_EMBED_TIMEOUT_MS)
     })
     if (!res.ok) throw new Error(`OpenRouter embed error: ${res.status} ${await res.text()}`)
     const data = await res.json()
