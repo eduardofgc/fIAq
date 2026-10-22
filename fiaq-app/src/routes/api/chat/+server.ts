@@ -13,6 +13,14 @@ import {
 } from '../../../../server/utils/chatRetrieval'
 import { buildFirecrawlContext, getFirecrawlIncludeDomains, searchFirecrawl } from '../../../../server/utils/firecrawl'
 import { contatosCitados } from '../../../../server/utils/professores'
+import {
+  buildSourceCatalog,
+  createMarkerFilter,
+  parseSourceMarker,
+  selectSources,
+  stripSourceMarker,
+  type SelectableSource
+} from '../../../../server/utils/sourceSelection'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -23,14 +31,8 @@ interface RequestBody {
   messages?: unknown
 }
 
-interface ResponseSource {
-  id: string
-  titulo: string
-  url: string
-  // 'link': link citado dentro do trecho da base (ex.: regulamento no SIGAA).
-  kind: 'rag' | 'web' | 'link'
-  description?: string
-}
+// kind 'link': link citado dentro de um trecho da base (ex.: regulamento no SIGAA).
+type ResponseSource = SelectableSource
 
 type WaitUntilPlatform = {
   context?: {
@@ -47,30 +49,35 @@ const SYSTEM_PROMPT = `Você é o assistente virtual do fIAq, portal acadêmico 
 
 Regras:
 * Responda sempre em português brasileiro, de forma direta, clara e acolhedora.
-* Use o <contexto> como fonte principal. Combine trechos relacionados antes de responder.
+* Use as <fontes> como base principal. Combine trechos relacionados antes de responder.
 * Não invente URLs, e-mails, prazos, documentos, regras ou procedimentos.
-* Não invente nomes de setores, comissões, conselhos ou siglas de órgãos da UnB que não estejam explicitamente no <contexto>. Se precisar indicar a quem procurar e o órgão certo não estiver claro no contexto, diga algo genérico como "a secretaria ou coordenação do seu curso", sem inventar um nome específico.
-* Quando o contexto vier de sindicato ou veículo jornalístico, trate como indício/contexto externo e recomende confirmar decisões acadêmicas em canais institucionais da UnB.
-* Não escreva URLs no corpo; os links clicáveis aparecem abaixo da resposta. Se o <contexto> listar "Links clicáveis que aparecem logo abaixo da resposta" e mandar consultar uma página ou regulamento, diga ao aluno que o link está logo abaixo. Nunca escreva "clique aqui" nem "neste link": o texto do corpo não é clicável.
-* Nunca mencione o <contexto>, "as informações fornecidas" ou "os trechos": responda como quem conhece o assunto.
+* Não invente nomes de setores, comissões, conselhos ou siglas de órgãos da UnB que não estejam explicitamente nas <fontes>. Se precisar indicar a quem procurar e o órgão certo não estiver claro nas fontes, diga algo genérico como "a secretaria ou coordenação do seu curso", sem inventar um nome específico.
+* Quando a fonte for sindicato ou veículo jornalístico, trate como indício externo e recomende confirmar decisões acadêmicas em canais institucionais da UnB.
+* Não escreva URLs no corpo; os links clicáveis aparecem abaixo da resposta. Se a resposta mandar o aluno abrir uma página, documento, modelo ou regulamento da lista "Fontes e links", diga que o link está logo abaixo da resposta. Nunca escreva "clique aqui" nem "neste link": o texto do corpo não é clicável.
+* Nunca mencione as <fontes>, "o contexto", "as informações fornecidas" ou "os trechos": responda como quem conhece o assunto.
+* A última linha da resposta é sempre [[fontes: F1, F3]], com os códigos da lista "Fontes e links" que sustentam a resposta e os links que o aluno deve abrir para fazer o que a resposta diz. Só os que tratam do que foi perguntado agora. Se a resposta disser que um link está logo abaixo, o código desse link tem que estar na linha. Essa linha é escondida do aluno, e os códigos (F1, F2...) só aparecem nela: nunca escreva "fonte F1" ou "(F2)" no texto.
 * Não crie seções "Links úteis", "Fontes", "Referências" ou listas de links no corpo da resposta.
 * Não use marcadores de fonte no corpo, como [1], [2] ou [3]; as fontes aparecem automaticamente abaixo da resposta.
 * Use Markdown simples, sem blocos de código e sem emojis.
 * Em perguntas de escopo UnB, nunca use frases como "não sei", "não tenho informação" ou "não encontrei informação". Se a informação não estiver confirmada, dê a melhor orientação possível, indique o setor, sistema ou documento provável e deixe claro o próximo passo sem inventar fatos.
-* Quando o aluno perguntar como fazer algo e o <contexto> trouxer os passos, liste esses passos em lista numerada, com os detalhes concretos que aparecem lá (sistema, tipo de pedido, o que preencher, documentos). Não troque esses detalhes por "consulte a página X". Nunca crie passos, etapas, sistemas ou documentos que não estejam no contexto: se o contexto só disser onde fazer o pedido, diga isso de forma concreta (qual sistema ou página e qual tipo de pedido), sem inventar etapas.
+* Quando o aluno perguntar como fazer algo e as <fontes> trouxerem os passos, liste esses passos em lista numerada, com os detalhes concretos que aparecem lá (sistema, tipo de pedido, o que preencher, documentos). Não troque esses detalhes por "consulte a página X". Nunca crie passos, etapas, sistemas ou documentos que não estejam nas fontes: se as fontes só disserem onde fazer o pedido, diga isso de forma concreta (qual sistema ou página e qual tipo de pedido), sem inventar etapas.
 * Para dúvidas amplas de matrícula, explique o processo geral primeiro. Você pode dizer que calouros e veteranos podem ter orientações específicas, mas não peça esclarecimento como resposta principal.
-* Não afirme que matrícula de calouros é automática, nem descreva regra de calouros, se isso não estiver explicitamente confirmado no contexto.
+* Não afirme que matrícula de calouros é automática, nem descreva regra de calouros, se isso não estiver explicitamente confirmado nas fontes.
 * Em assédio, discriminação, violência ou saúde mental, oriente a procurar a Ouvidoria e o CAEP.
-* NUNCA mostre seu raciocínio interno, rascunhos ou análise do contexto na resposta. Vá direto à resposta final.
+* NUNCA mostre seu raciocínio interno, rascunhos ou análise das fontes na resposta. Vá direto à resposta final.
 * Não use prefixos como "The user wants...", "Context says...", "I need to...". Responda apenas em português brasileiro.
 * Não use travessão nem meia-risca (— ou –) em nenhuma parte da resposta. Use vírgula, ponto, dois-pontos ou parênteses no lugar.`
 
+// O lembrete vai depois da pergunta: com o contexto longo da web, o modelo
+// esquecia a linha de fontes pedida só no começo do prompt.
 function buildPrompt(context: string, question: string): string {
-  return `<contexto>
+  return `<fontes>
 ${context}
-</contexto>
+</fontes>
 
-Pergunta do aluno: ${question}`
+Pergunta do aluno: ${question}
+
+Responda e termine com a linha [[fontes: ...]] usando os códigos da lista "Fontes e links".`
 }
 
 
@@ -320,22 +327,24 @@ export const POST: RequestHandler = async (event) => {
     }
 
     // Só quando a base local entrou no contexto: se a web a substituiu, os links
-    // do trecho local não têm a ver com a resposta.
+    // dos trechos locais não têm a ver com a resposta.
     if (answerSources.some(source => source.kind === 'rag')) {
-      const citedLinks = extractCitedLinks(results[0])
-      if (citedLinks.length) {
-        answerSources = [
-          ...answerSources,
-          ...citedLinks.map((link, index): ResponseSource => ({
-            id: `link-${index + 1}`,
-            titulo: link.titulo,
-            url: link.url,
-            kind: 'link'
-          }))
-        ]
-        context = `${context}\n\nLinks clicáveis que aparecem logo abaixo da resposta: ${citedLinks.map(link => link.titulo).join('; ')}. Ao citar esses documentos, diga: "o link está logo abaixo da resposta".`
-      }
+      answerSources = [
+        ...answerSources,
+        ...extractCitedLinks(results).map((link, index): ResponseSource => ({
+          id: `link-${index + 1}`,
+          titulo: link.titulo,
+          url: link.url,
+          kind: 'link',
+          origem: link.origem,
+          principal: link.principal
+        }))
+      ]
     }
+
+    // O modelo escolhe, pela lista numerada, o que aparece abaixo da resposta.
+    const sourceCatalog = buildSourceCatalog(answerSources)
+    if (sourceCatalog) context = `${context}\n\n${sourceCatalog}`
 
     const history = clientMessages
       .slice(0, -1)
@@ -347,10 +356,13 @@ export const POST: RequestHandler = async (event) => {
       { role: 'user', content: buildPrompt(context, question) }
     ]
 
-    if (answerSources.length > 0) {
+    // Durante a escrita, só os trechos e páginas; os links entram quando o
+    // modelo disser quais importam.
+    const contentSources = answerSources.filter(source => source.kind !== 'link')
+    if (contentSources.length > 0) {
       await sendEvent(sse, {
         type: 'sources',
-        items: answerSources
+        items: contentSources
       })
     }
 
@@ -369,6 +381,7 @@ export const POST: RequestHandler = async (event) => {
     }
     sse.signal.addEventListener('abort', cancelReaderOnAbort, { once: true })
     let respostaCompleta = ''
+    const markerFilter = createMarkerFilter()
 
     try {
       while (true) {
@@ -379,10 +392,28 @@ export const POST: RequestHandler = async (event) => {
           return
         }
         respostaCompleta += value
-        await sendEvent(sse, { type: 'token', content: value })
+        const visible = markerFilter.push(value)
+        if (visible) await sendEvent(sse, { type: 'token', content: visible })
       }
     } finally {
       sse.signal.removeEventListener('abort', cancelReaderOnAbort)
+    }
+
+    const tail = markerFilter.flush()
+    if (tail) await sendEvent(sse, { type: 'token', content: tail })
+
+    const chosenSources = parseSourceMarker(respostaCompleta)
+    const respostaVisivel = stripSourceMarker(respostaCompleta)
+    const finalSources = selectSources(answerSources, chosenSources, respostaVisivel)
+    console.log(JSON.stringify({
+      level: 'info',
+      msg: 'chat_sources_selected',
+      offered: answerSources.length,
+      chosen: chosenSources === null ? null : chosenSources.length,
+      shown: finalSources.map(source => source.id)
+    }))
+    if (finalSources.length > 0) {
+      await sendEvent(sse, { type: 'sources', items: finalSources })
     }
 
     await sendActivity(sse, {
@@ -403,8 +434,8 @@ export const POST: RequestHandler = async (event) => {
         question,
         queryVector,
         embedInfo.model,
-        respostaCompleta,
-        answerSources.map(source => ({ id: source.id, titulo: source.titulo, url: source.url }))
+        respostaVisivel,
+        finalSources.map(source => ({ id: source.id, titulo: source.titulo, url: source.url }))
       ))
       .catch((e) => {
         console.error('[chat.post] Falha ao registrar pergunta:', e)

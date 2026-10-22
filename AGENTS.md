@@ -268,9 +268,18 @@ Fluxo:
 5. Chama OpenRouter e responde via SSE.
 6. Envia fontes separadas do corpo da resposta. Se todas sao da base interna, a
    UI mostra "Consultado do banco de dados (titulos)"; com fontes web, mostra
-   "Fontes verificadas". Links que o trecho principal cita (ex.: regulamento do
-   curso no SIGAA, muito comum no FAQ) vao como fontes `kind: 'link'` e aparecem
-   como chips abaixo do selo (`extractCitedLinks`).
+   "Fontes verificadas". Links que os trechos citam (ex.: regulamento do curso
+   no SIGAA, muito comum no FAQ) vao como fontes `kind: 'link'` e aparecem como
+   chips abaixo do selo (`extractCitedLinks`).
+   Quem escolhe o que aparece e o modelo: ele recebe a lista numerada (F1, F2...)
+   de trechos, paginas e links e termina a resposta com `[[fontes: F1, F3]]`. A
+   rota esconde essa linha no streaming e, no fim, manda de novo o evento
+   `sources` so com o escolhido (`server/utils/sourceSelection.ts`). Link citado
+   pelo nome na resposta entra mesmo se o modelo esquecer o codigo. Sem a linha,
+   vale o comportamento antigo (todos os trechos + links do 1o). O log
+   `chat_sources_selected` mostra quantas fontes foram oferecidas e escolhidas.
+   Pergunta com assunto proprio (2+ termos) nao e tratada como continuacao, mesmo
+   com "ultimas", "isso" etc.
 7. Registra pergunta anonima no banco depois da resposta.
 
 A busca, o ranking e a decisao de suficiencia ficam em

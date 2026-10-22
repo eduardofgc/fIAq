@@ -365,5 +365,6 @@ caminho mais fiel ao deploy continua sendo `pnpm dev` com a URI do Supabase.
 | Chat retorna `LLM_UNAVAILABLE` | OpenRouter indisponível, chave inválida ou cota diária esgotada | Confira `OPENROUTER_API_KEY`; erro `429 free-models-per-day` é cota (ver `DEPLOY.md`) |
 | Embedding falha com `429 free-models-per-min` | Mais de 20 requisições por minuto | O seed espera e tenta de novo sozinho; com o `add-crawl-file.mjs`, espere um minuto e rode de novo |
 | RAG carrega fallback JSON | Banco/RAG indisponível ou sem seed | Rode o healthcheck e revise `pnpm seed:knowledge` |
+| Fontes ou links errados abaixo da resposta | O modelo não escreveu a linha `[[fontes: ...]]` (aparece tudo) ou escolheu mal | Veja o log `chat_sources_selected` (`chosen: null` = sem a linha); a escolha fica em `server/utils/sourceSelection.ts` |
 | Pergunta coberta pela base cai na pesquisa web | Trecho certo não ficou em 1º ou cobertura de termos baixa | Adicione a pergunta em `scripts/eval-rag-casos.json` e rode `pnpm eval:rag --verbose`; no servidor, veja o log `chat_research_decision` |
 | `pnpm lint` quebra com `eslint-typegen ... .nuxt/eslint.config.mjs` | Pasta `.nuxt/` da versão Nuxt sendo lida | Confira se `.nuxt/**` está em `ignores` no `eslint.config.mjs` |

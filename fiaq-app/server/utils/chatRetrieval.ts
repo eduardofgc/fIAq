@@ -65,38 +65,50 @@ export function buildCompactContext(results: SearchResult[]): string {
 export interface CitedLink {
   titulo: string
   url: string
+  // Título do trecho que cita o link (o modelo precisa saber de onde ele vem).
+  origem: string
+  // Citado pelo 1º trecho: é o que aparece se o modelo não escolher os links.
+  principal: boolean
 }
 
 // Texto de link que sozinho não diz nada ("aqui", "este vídeo"): o chip usa o
 // título do trecho no lugar.
 const VAGUE_LINK_TEXT = /^(aqui|clique aqui|modelos aqui|descritos aqui|este video|este link|link|veja)$/
+export const MAX_CITED_LINKS = 12
 
-// Links que o trecho principal cita. O corpo da resposta não pode ter URL e o
-// contexto vai sem links (stripLinks), então sem isto o aluno lia "veja o
-// regulamento do seu curso" sem ter onde clicar. Muita resposta do FAQ é isso.
-export function extractCitedLinks(result: SearchResult | undefined, limit = 5): CitedLink[] {
-  if (!result) return []
-
+// Links que os trechos citam. O corpo da resposta não pode ter URL e o contexto
+// vai sem links (stripLinks), então sem isto o aluno lia "veja o regulamento do
+// seu curso" sem ter onde clicar. Muita resposta do FAQ é isso. Vêm todos os
+// links (um trecho do FAQ de TCC cita 6, e o modelo LaTeX era o 6º): quem
+// escolhe os que aparecem é o modelo (server/utils/sourceSelection.ts).
+export function extractCitedLinks(results: SearchResult[], limit = MAX_CITED_LINKS): CitedLink[] {
   const links: CitedLink[] = []
-  const seen = new Set([result.url])
+  const seen = new Set(results.map(result => result.url))
 
-  for (const match of result.conteudo.matchAll(/\[([^\]]+)\]\(([^)\s]+)\)/g)) {
-    // O FAQ tem um link quebrado no formato "https://site/[https://outro/]".
-    const raw = match[2]!.match(/\[(https?:\/\/[^\]]+)\]/)?.[1] ?? match[2]!
-    let url: string
-    try {
-      const parsed = new URL(raw)
-      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') continue
-      url = parsed.href
-    } catch {
-      continue
+  for (const [index, result] of results.entries()) {
+    for (const match of result.conteudo.matchAll(/\[([^\]]+)\]\(([^)\s]+)\)/g)) {
+      // O FAQ tem um link quebrado no formato "https://site/[https://outro/]".
+      const raw = match[2]!.match(/\[(https?:\/\/[^\]]+)\]/)?.[1] ?? match[2]!
+      let url: string
+      try {
+        const parsed = new URL(raw)
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') continue
+        url = parsed.href
+      } catch {
+        continue
+      }
+      if (seen.has(url)) continue
+      seen.add(url)
+
+      const text = match[1]!.replace(/\s+/g, ' ').trim()
+      links.push({
+        titulo: VAGUE_LINK_TEXT.test(normalizeText(text)) ? result.titulo : text,
+        url,
+        origem: result.titulo,
+        principal: index === 0
+      })
+      if (links.length >= limit) return links
     }
-    if (seen.has(url)) continue
-    seen.add(url)
-
-    const text = match[1]!.replace(/\s+/g, ' ').trim()
-    links.push({ titulo: VAGUE_LINK_TEXT.test(normalizeText(text)) ? result.titulo : text, url })
-    if (links.length >= limit) break
   }
 
   return links
@@ -201,7 +213,10 @@ export const UNB_SCOPE_TERMS = [
   'ouvidoria',
   'assedio',
   'discriminacao',
-  'caep'
+  'caep',
+  // Num chatbot da UnB, "últimas notícias" é notícia da UnB.
+  'noticia',
+  'novidade'
 ]
 
 export const FRESHNESS_SENSITIVE_TERMS = [
@@ -296,7 +311,24 @@ export function isLikelyFollowUp(question: string): boolean {
     || /\b(isso|essa|esse|essas|esses|dessa|desse|dessas|desses|ainda|tambem|tambem|normal|novo|nova|ultim[ao]s?)\b/.test(normalized)
 }
 
+// Palavras que apontam para algo já dito; não são o assunto da pergunta.
+const REFERENCE_TERMS = new Set([
+  'dele', 'dela', 'deles', 'delas', 'ele', 'ela', 'eles', 'elas', 'nele', 'nela',
+  'nisso', 'disso', 'desse', 'dessa', 'desses', 'dessas', 'nesse', 'nessa',
+  'ainda', 'tambem', 'entao', 'mas', 'agora', 'normal'
+])
+
+// Termos que dizem o assunto da própria mensagem.
+function subjectTerms(question: string): string[] {
+  return terms(question).filter(term => !GENERIC_CONTEXT_TERMS.has(term) && !REFERENCE_TERMS.has(term))
+}
+
 export function buildSearchQuestion(messages: HistoryMessage[], currentQuestion: string): string {
+  // "quais são as últimas notícias?" depois de falar de TCC parece continuação
+  // ("últimas"), mas tem assunto próprio: juntar as perguntas trazia trechos de
+  // TCC para uma resposta sobre notícias.
+  if (subjectTerms(currentQuestion).length >= 2) return currentQuestion
+
   const previousUserQuestions = messages
     .slice(0, -1)
     .filter(message => message.role === 'user')
@@ -355,8 +387,7 @@ export function isDetailFollowUp(question: string): boolean {
   if (!isLikelyFollowUp(question)) return false
   // "e como faço matrícula em estágio obrigatório?" começa como continuação, mas
   // traz assunto próprio: é pergunta nova, e a base local responde.
-  const subjectTerms = terms(question).filter(term => !GENERIC_CONTEXT_TERMS.has(term))
-  if (subjectTerms.length >= 2) return false
+  if (subjectTerms(question).length >= 2) return false
 
   return /\b(detalh\w*|passo a passo|passos|etapas|orientac\w*|procedimento\w*|prossegu\w*|como (eu )?(faco|fazer|solicito|solicitar|peco|pedir|dou|procedo|proceder))\b/
     .test(normalizeText(question))

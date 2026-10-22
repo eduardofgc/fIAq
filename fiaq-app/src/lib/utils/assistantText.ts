@@ -98,8 +98,20 @@ function stripDashes(text: string): string {
     .replace(/[—–]/g, '-')
 }
 
+// A linha "[[fontes: F1, F3]]" com que o modelo indica as fontes é cortada no
+// servidor; isto é só proteção (conversa importada, versão antiga do servidor).
+function stripSourceMarker(text: string): string {
+  const start = text.indexOf('[[')
+  return (start < 0 ? text : text.slice(0, start))
+    // Código que escapou para o texto: "[título](F4)", "(F2)", "na fonte F1".
+    .replace(/\[([^\]]+)\]\(\s*F\d+\s*\)/g, '$1')
+    .replace(/\s*\(\s*F\d+(?:\s*(?:,|e)\s*F\d+)*\s*\)/g, '')
+    .replace(/\s*\b(?:n|d)[ao]s? fontes? F\d+(?:\s*(?:,|e)\s*F\d+)*/gi, '')
+    .replace(/\b(fontes?)\s+F\d+(?:\s*(?:,|e)\s*F\d+)*/gi, '$1')
+}
+
 export function cleanAssistantText(text: string): string {
-  return stripDashes(stripNumericCitations(stripReferenceOnlySections(stripInlineLinks(text))))
+  return stripDashes(stripNumericCitations(stripReferenceOnlySections(stripInlineLinks(stripSourceMarker(text)))))
     .replace(/\n{3,}/g, '\n\n')
     .trim()
 }
