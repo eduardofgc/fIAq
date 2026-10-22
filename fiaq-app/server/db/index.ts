@@ -9,6 +9,9 @@ import postgres from 'postgres'
 // max: 1 é o padrão recomendado para Vercel Functions (serverless):
 // cada instância da função mantém no máximo 1 conexão aberta,
 // que é encerrada após idle_timeout segundos de inatividade.
+// Fora da Vercel (Coolify, Docker) um único processo atende todo mundo: com 1
+// conexão, as buscas de cada pergunta e as perguntas de alunos diferentes
+// esperam em fila. Lá usamos um pool pequeno.
 //
 // prepare: false mantém compatibilidade com poolers serverless, como o
 // Transaction Pooler do Supabase, que não suporta prepared statements.
@@ -25,7 +28,7 @@ export function getSql(): postgres.Sql {
   }
 
   sql ??= postgres(connectionString, {
-    max: 1,
+    max: process.env.VERCEL ? 1 : 5,
     prepare: false,
     idle_timeout: 20,
     connect_timeout: 10

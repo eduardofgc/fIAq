@@ -176,6 +176,10 @@ Principais variaveis:
 - `OPENROUTER_CHAT_FALLBACK_MODELS`: fallbacks separados por virgula.
 - `OPENROUTER_STREAM_PREFLIGHT_CHARS`: minimo de chars antes do streaming.
 - `OPENROUTER_EMBED_MODEL`: modelo de embedding usado tambem no seed.
+- `OPENROUTER_EMBED_TIMEOUT_MS`: limite por tentativa de embedding (padrao
+  6000, 2 tentativas). O embedding gratuito as vezes nao responde nada; sem
+  limite, todo o chat travava em "Verificando fontes". Estourou, o chat segue so
+  com a busca textual.
 - `FIRECRAWL_API_URL`: endpoint/proxy Firecrawl para busca web.
 - `FIRECRAWL_API_KEY`: secret. Obrigatoria com a API publica
   (`api.firecrawl.dev`, padrao quando `FIRECRAWL_API_URL` esta vazia): sem

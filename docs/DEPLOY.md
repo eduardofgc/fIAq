@@ -253,6 +253,7 @@ psql -U postgres -d postgres -c "SELECT origem, nivel_confianca, count(*) FROM r
 | Seed falha com `getaddrinfo EAI_AGAIN supabase-db` | Nome curto do host não resolve na rede do Coolify | Use `supabase-db-<id-do-servico>` na `DATABASE_URL` (passo 1) |
 | `getent hosts` não retorna nada nem com o nome completo | Serviço Supabase só na rede do próprio stack | Ajuste o *Network attachment* (passo 1) e reinicie o serviço |
 | Restart do Supabase falha com `quay.io/minio/mc ... 401` | Imagem do MinIO não é mais pública | Remova `minio-createbucket` do compose (passo 1) |
+| Chat fica parado em "Verificando fontes do fIAq" e não responde | Embedding gratuito do OpenRouter sem responder (acontece em rajadas) e versão sem limite de tempo | Desde o limite `OPENROUTER_EMBED_TIMEOUT_MS` (6 s, 2 tentativas) o chat segue com a busca textual; no log aparece `Busca vetorial falhou antes do fallback textual` |
 | Chat responde "gerador de resposta ficou indisponível" | Cota diária do OpenRouter esgotada | Aguarde o reset ou adicione créditos (passo 5) |
 | Pesquisa web sempre "sem nova fonte"; "Não me ajudou" mostra "Não consegui concluir a resposta" | Firecrawl sem chave (limite do acesso sem chave estourado) ou sem créditos | Configure `FIRECRAWL_API_KEY` (passo 3) e confira os créditos no painel do Firecrawl |
 | Seed para com "Cota diária de embeddings esgotada" | Mesma cota | Rode de novo depois do reset; o progresso fica salvo |
