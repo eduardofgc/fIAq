@@ -262,10 +262,10 @@ psql -U postgres -d postgres -c "SELECT origem, nivel_confianca, count(*) FROM r
 
 ## Alternativa: Vercel + Supabase gerenciado
 
-Este foi o deploy original. O projeto Supabase gerenciado
-(`dwjzjuqtsgrvbiwjvemu`) foi pausado por inatividade. Para recuperar esse
-ambiente, retome o projeto existente no Supabase antes de alterar o banco.
-Isso preserva os dados e as configurações já existentes.
+Este foi o deploy original, restaurado em 11/11/2026. O projeto Supabase
+gerenciado (`dwjzjuqtsgrvbiwjvemu`) tinha sido pausado por inatividade e foi
+retomado com os dados preservados. As migrations 08 e 09 foram aplicadas após
+backup; o conhecimento foi atualizado sem excluir registros anteriores.
 
 | Item | Valor |
 |---|---|
@@ -279,6 +279,19 @@ Isso preserva os dados e as configurações já existentes.
 Na restauração da Vercel, o visual de `a22cc37` (25/06) foi recuperado sobre o
 backend de `fc2f426`. A página de professores e as melhorias posteriores do
 chat, fontes, feedback e exportação foram preservadas.
+
+A publicação foi feita pela CLI a partir de `04aa235`, na branch
+`codex/restaura-visual-vercel-20261111`, e promovida para a URL pública após o
+teste do chat. A `main` de Eduardo foi preservada. A integração Git da Vercel
+ainda aponta para `main`; antes de voltar a publicar por push, incorpore a
+restauração nessa branch e confira o vínculo com o repositório transferido
+para `eduardofgc/fIAq`. Um deployment manual não altera a branch acompanhada
+pela integração Git.
+
+Foram exercitados em produção o FAQ, o chat com resposta e fontes, a exportação
+PDF, o feedback com complemento web e a aprovação administrativa com gravação
+no RAG. A conta e os registros temporários de QA foram removidos. O envio real
+de convites por e-mail não foi disparado.
 
 Cuidados para recuperar um projeto Vercel antigo:
 
@@ -305,7 +318,7 @@ executar qualquer seed. O conhecimento novo pode ser incorporado com o seed
 retomável, que reaproveita os embeddings locais. Não apague tabelas nem
 substitua o banco existente para recuperar a hospedagem.
 
-Passos:
+Para um ambiente novo:
 
 1. Crie o projeto no Supabase e aplique os SQLs no SQL Editor, na mesma ordem
    do passo 2.
@@ -330,7 +343,18 @@ Passos:
 4. Configure na Vercel as mesmas variáveis do passo 3, trocando a
    `DATABASE_URL` pela do pooler e as `VITE_SUPABASE_*` pelas do projeto
    gerenciado.
-5. Faça push na `main`.
+5. Publique o código validado. Na recuperação existente, a publicação manual
+   permite preservar a `main` enquanto a restauração é revisada:
+
+   ```bash
+   vercel deploy --prod --skip-domain --yes --scope fernandos-projects-8b069a52
+   # Valide a URL retornada antes de promover.
+   vercel promote <DEPLOYMENT_URL> --yes --scope fernandos-projects-8b069a52
+   ```
+
+   Depois de incorporar a restauração na `main` e conferir o vínculo Git,
+   pushes nessa branch podem voltar a publicar automaticamente. Mantenha os
+   previews bloqueados.
 
 Limitações: o Supabase Free pausa após alguns dias sem uso (foi o que derrubou
 este deploy), e o plano Hobby da Vercel limita a duração das funções de
