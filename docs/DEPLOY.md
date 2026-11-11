@@ -290,9 +290,12 @@ Cuidados para recuperar um projeto Vercel antigo:
   ao carregar `isomorphic-dompurify`/`jsdom` e erro 500 no `/chatbot`.
   Este é o [workaround documentado pelo mantenedor](https://github.com/kkomelin/isomorphic-dompurify/issues/394).
 - Substitua a chave OpenRouter inválida por uma chave dedicada, do tipo
-  Secret. O modelo antigo `openrouter/owl-alpha` deve ser substituído por
-  `google/gemma-4-31b-it:free`; o fallback configurado para esta restauração é
-  `nvidia/nemotron-3-ultra-550b-a55b:free`.
+  Secret. A restauração usa `nvidia/nemotron-3.5-lightning:free` no chat e
+  `nvidia/nemotron-3.5-super-vl:free` como fallback. Ambos foram testados em
+  português com o contexto dos guias. O antigo `openrouter/owl-alpha` saiu do
+  catálogo; o Gemma 4 apresentou limite do provedor e o antigo Nemotron Ultra
+  chegou a devolver somente `ws`. Respostas abaixo do mínimo de preflight
+  agora são descartadas antes de chegar ao aluno.
 - Preserve `OPENROUTER_EMBED_MODEL=nvidia/llama-nemotron-embed-vl-1b-v2:free`.
   Trocar só a chave não exige reindexação; trocar o modelo exige.
 - Fixe `APP_URL` e `ADMIN_BASE_URL` em `https://fiaq-app.vercel.app`.

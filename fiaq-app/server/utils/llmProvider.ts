@@ -456,7 +456,8 @@ async function openRouterStreamOnce(
 
 function isUnusableOpenRouterText(text: string): boolean {
   const trimmed = text.trim()
-  if (!trimmed) return true
+  // O fim do stream também precisa validar o conteúdo antes de liberar a resposta.
+  if (trimmed.length < OPENROUTER_STREAM_PREFLIGHT_MIN_CHARS) return true
   if (hasCjkText(trimmed)) return true
 
   return isSafetyClassifierText(trimmed)
