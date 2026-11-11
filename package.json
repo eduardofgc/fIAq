@@ -17,6 +17,7 @@
     "fetch:professores": "pnpm --dir fiaq-app fetch:professores",
     "index:rag": "pnpm --dir fiaq-app index:rag",
     "test:openrouter": "pnpm --dir fiaq-app test:openrouter",
+    "test:llm-provider": "pnpm --dir fiaq-app test:llm-provider",
     "eval:rag": "pnpm --dir fiaq-app eval:rag"
   },
   "devDependencies": {

@@ -262,8 +262,10 @@ psql -U postgres -d postgres -c "SELECT origem, nivel_confianca, count(*) FROM r
 
 ## Alternativa: Vercel + Supabase gerenciado
 
-Este foi o deploy original. Está documentado para quem quiser reproduzir, mas o
-projeto Supabase gerenciado (`dwjzjuqtsgrvbiwjvemu`) está fora do ar.
+Este foi o deploy original, restaurado em 11/11/2026. O projeto Supabase
+gerenciado (`dwjzjuqtsgrvbiwjvemu`) tinha sido pausado por inatividade e foi
+retomado com os dados preservados. As migrations 08 e 09 foram aplicadas após
+backup; o conhecimento foi atualizado sem excluir registros anteriores.
 
 | Item | Valor |
 |---|---|
@@ -272,9 +274,54 @@ projeto Supabase gerenciado (`dwjzjuqtsgrvbiwjvemu`) está fora do ar.
 | Root Directory | `fiaq-app` (obrigatório: o app não está na raiz) |
 | Framework / Install / Build | SvelteKit / `pnpm install` / `pnpm build` |
 | Adapter | adapter-vercel (padrão do `svelte.config.js` quando `DEPLOY_TARGET` não é `node`), `maxDuration` 60s |
-| Previews | bloqueados em `fiaq-app/vercel.json`; só `main` gera deploy |
+| Previews | bloqueados em `fiaq-app/vercel.json` e em `previewDeploymentsDisabled` no projeto |
 
-Passos:
+Desde a tarde de 11/11/2026, a Vercel publica a interface da `main` de
+Eduardo (`fc2f426`), com uma única troca combinada no grupo: a seção
+"Perguntas frequentes por tema" da home usa os cartões com descrição da versão
+de Fernando. O restante da interface segue a `main`. A correção do preflight
+do streaming (`server/utils/llmProvider.ts`) veio da restauração anterior.
+
+A publicação foi feita pela CLI a partir da branch
+`claude/main-eduardo-faq-fernando` e promovida para a URL pública após o teste
+do chat. A restauração anterior, com o visual de 25/06, continua na branch
+`codex/restaura-visual-vercel-20261111`. A integração Git da Vercel ainda
+aponta para `main`; antes de voltar a publicar por push, incorpore essa branch
+na `main` e confira o vínculo com o repositório transferido para
+`eduardofgc/fIAq`. Um deployment manual não altera a branch acompanhada pela
+integração Git.
+
+Foram exercitados em produção o FAQ, o chat com resposta e fontes, a exportação
+PDF, o feedback com complemento web e a aprovação administrativa com gravação
+no RAG. A conta e os registros temporários de QA foram removidos. O envio real
+de convites por e-mail não foi disparado.
+
+Cuidados para recuperar um projeto Vercel antigo:
+
+- O preset do projeto deve ser **SvelteKit**, com Root Directory `fiaq-app`.
+- Configure `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`. As antigas
+  `NUXT_PUBLIC_*` não configuram o cliente SvelteKit.
+- Defina `NODE_OPTIONS=--experimental-require-module` em Production. O
+  runtime da Vercel pode desabilitar `require(esm)`, causando `ERR_REQUIRE_ESM`
+  ao carregar `isomorphic-dompurify`/`jsdom` e erro 500 no `/chatbot`.
+  Este é o [workaround documentado pelo mantenedor](https://github.com/kkomelin/isomorphic-dompurify/issues/394).
+- Substitua a chave OpenRouter inválida por uma chave dedicada, do tipo
+  Secret. A restauração usa `nvidia/nemotron-3.5-lightning:free` no chat e
+  `nvidia/nemotron-3.5-super-vl:free` como fallback. Ambos foram testados em
+  português com o contexto dos guias. O antigo `openrouter/owl-alpha` saiu do
+  catálogo; o Gemma 4 apresentou limite do provedor e o antigo Nemotron Ultra
+  chegou a devolver somente `ws`. Respostas abaixo do mínimo de preflight
+  agora são descartadas antes de chegar ao aluno.
+- Preserve `OPENROUTER_EMBED_MODEL=nvidia/llama-nemotron-embed-vl-1b-v2:free`.
+  Trocar só a chave não exige reindexação; trocar o modelo exige.
+- Fixe `APP_URL` e `ADMIN_BASE_URL` em `https://fiaq-app.vercel.app`.
+
+Depois de retomar o banco, confira as migrations e as permissões antes de
+executar qualquer seed. O conhecimento novo pode ser incorporado com o seed
+retomável, que reaproveita os embeddings locais. Não apague tabelas nem
+substitua o banco existente para recuperar a hospedagem.
+
+Para um ambiente novo:
 
 1. Crie o projeto no Supabase e aplique os SQLs no SQL Editor, na mesma ordem
    do passo 2.
@@ -299,7 +346,18 @@ Passos:
 4. Configure na Vercel as mesmas variáveis do passo 3, trocando a
    `DATABASE_URL` pela do pooler e as `VITE_SUPABASE_*` pelas do projeto
    gerenciado.
-5. Faça push na `main`.
+5. Publique o código validado. Na recuperação existente, a publicação manual
+   permite preservar a `main` enquanto a restauração é revisada:
+
+   ```bash
+   vercel deploy --prod --skip-domain --yes --scope fernandos-projects-8b069a52
+   # Valide a URL retornada antes de promover.
+   vercel promote <DEPLOYMENT_URL> --yes --scope fernandos-projects-8b069a52
+   ```
+
+   Depois de incorporar a restauração na `main` e conferir o vínculo Git,
+   pushes nessa branch podem voltar a publicar automaticamente. Mantenha os
+   previews bloqueados.
 
 Limitações: o Supabase Free pausa após alguns dias sem uso (foi o que derrubou
 este deploy), e o plano Hobby da Vercel limita a duração das funções de
